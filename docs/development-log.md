@@ -128,7 +128,6 @@ Package installation was retried with npm and again timed out in the execution e
 
 The economic foundation is now stable enough to begin Phase 2 narrowly: implement one placeholder FOMC meeting around the existing simulation with a data briefing, two or three advisers, one communication choice, a policy decision, and an explainable market reaction. Do not add the RPG world or full committee system yet.
 
-
 ## Periodic Project Review 1 — After Iterations 1–2
 
 ### Gameplay
