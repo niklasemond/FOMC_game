@@ -75,9 +75,9 @@ export const ARCADE_BEATS: readonly ArcadeBeat[] = [
 ] as const;
 
 export function presidentialReaction(policyAction: number): string {
-  if (policyAction <= -50) return '“BIG CUT. Finally. Beautiful. Should have been 100, maybe 150. Everybody knows rates are too high.”';
-  if (policyAction < 0) return '“Tiny cut. Very tiny. Better than nothing. I would have gone MUCH BIGGER, but at least they listened a little.”';
-  if (policyAction === 0) return '“NO CUT. Can you believe it? Rates are WAY too high. Everybody knows it. Very unfair to American business.”';
-  if (policyAction <= 25) return '“They RAISED rates. Terrible. Really terrible. Maybe they want houses and cars to cost more. Very unfair.”';
-  return '“FIFTY POINTS UP. A total disaster. Nobody does this. Maybe the worst rate move anyone has seen. We need LOW rates.”';
+  if (policyAction <= -50) return '“BIG CUT. Finally. Beautiful. Should have been 100. Everybody knows rates are too high.”';
+  if (policyAction < 0) return '“Tiny cut. Very tiny. Better than nothing. I would have gone MUCH BIGGER. Everybody knows.”';
+  if (policyAction === 0) return '“NO CUT. Can you believe it? Rates are WAY too high. Everybody knows. Very unfair.”';
+  if (policyAction <= 25) return '“They RAISED rates. Terrible. Really terrible. Very unfair to American business.”';
+  return '“FIFTY POINTS UP. A total disaster. Maybe the worst rate move ever. We need LOW rates.”';
 }
