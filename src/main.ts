@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
 import './style.css';
 import { BootScene } from './game/BootScene.ts';
+import { PHASE_2_SCENARIO } from './meeting/content.ts';
 import { EconomicSimulation } from './simulation/engine.ts';
 import { mountDebugPanel } from './ui/debugPanel.ts';
+import { mountMeetingPrototype } from './ui/meetingPanel.ts';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -20,4 +22,10 @@ const config: Phaser.Types.Core.GameConfig = {
 };
 
 new Phaser.Game(config);
-mountDebugPanel(new EconomicSimulation({ seed: 19870811 }));
+
+const debugMode = new URLSearchParams(window.location.search).get('debug') === '1';
+if (debugMode) {
+  mountDebugPanel(new EconomicSimulation(PHASE_2_SCENARIO));
+} else {
+  mountMeetingPrototype(new EconomicSimulation(PHASE_2_SCENARIO));
+}

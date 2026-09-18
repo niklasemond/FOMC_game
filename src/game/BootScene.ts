@@ -8,29 +8,29 @@ export class BootScene extends Phaser.Scene {
   create(): void {
     this.cameras.main.setBackgroundColor('#9bbc0f');
     this.add.rectangle(80, 72, 150, 134, 0x8bac0f).setStrokeStyle(2, 0x0f380f);
-    this.add.text(80, 26, 'FOMC CHAIR', {
+    this.add.text(80, 24, 'FOMC CHAIR', {
       fontFamily: 'monospace',
       fontSize: '12px',
       color: '#0f380f'
     }).setOrigin(0.5);
-    this.add.text(80, 45, 'ECONOMIC SANDBOX', {
+    this.add.text(80, 42, 'MEETING 1', {
       fontFamily: 'monospace',
-      fontSize: '8px',
+      fontSize: '9px',
       color: '#306230'
     }).setOrigin(0.5);
 
     const lines = [
-      'PHASE 1 DEBUG BUILD',
+      'CORE CPI: 3.0%',
+      'UNEMP.:   4.7%',
+      'PAYROLLS: 65K',
       '',
-      'SIMULATION: ONLINE',
-      'RPG WORLD: LOCKED',
-      'EVENTS: LOCKED',
-      'PRESS CORPS: LURKING',
+      'THE DATA DISAGREE.',
+      'SO WILL YOUR STAFF.',
       '',
-      'USE DEBUG PANEL ->'
+      'MAKE THE CALL ->'
     ];
 
-    this.add.text(18, 67, lines.join('\n'), {
+    this.add.text(18, 62, lines.join('\n'), {
       fontFamily: 'monospace',
       fontSize: '7px',
       lineSpacing: 3,

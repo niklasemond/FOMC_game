@@ -1,4 +1,11 @@
 export type PolicyAction = -50 | -25 | 0 | 25 | 50;
+export type GuidanceBias = -1 | 0 | 1;
+
+export interface CommunicationTransmission {
+  inflationExpectationsDelta: number;
+  credibilityDelta: number;
+  inconsistentSignal: boolean;
+}
 
 export interface HiddenEconomyState {
   demandPressure: number;

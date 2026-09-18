@@ -2,6 +2,8 @@ import { DEFAULT_CONFIG, DEFAULT_HIDDEN_STATE } from './defaults.ts';
 import { POLICY_LAG_WEIGHTS } from './constants.ts';
 import { SeededRng } from './rng.ts';
 import type {
+  CommunicationTransmission,
+  GuidanceBias,
   HiddenEconomyState,
   PolicyAction,
   SimulationConfig,
@@ -62,6 +64,44 @@ export class EconomicSimulation {
     this.state.visible.federalFundsRate = round(next);
     this.state.policyHistory[0] = round(next);
     return this.getState();
+  }
+
+  applyCommunication(guidanceBias: GuidanceBias, policyAction: PolicyAction): CommunicationTransmission {
+    const h = this.state.hidden;
+    const inconsistentSignal =
+      guidanceBias !== 0 &&
+      policyAction !== 0 &&
+      Math.sign(policyAction) !== Math.sign(guidanceBias);
+
+    const expectationsDelta = -0.08 * guidanceBias;
+    let credibilityDelta = 0;
+
+    if (guidanceBias > 0) {
+      credibilityDelta += h.underlyingInflationGap >= 0.5 ? 0.012 : -0.004 * Math.max(0, -h.laborTightness);
+    } else if (guidanceBias < 0) {
+      credibilityDelta += h.underlyingInflationGap >= 0.5 ? -0.012 : 0.006 * Math.max(0, -h.laborTightness);
+    } else {
+      credibilityDelta += 0.002;
+    }
+
+    if (inconsistentSignal) credibilityDelta -= 0.025;
+
+    const nextExpectations = clamp(h.inflationExpectations + expectationsDelta, 1.4, 5.8);
+    const nextCredibility = clamp(h.credibility + credibilityDelta, 0.2, 1);
+
+    const appliedExpectationsDelta = nextExpectations - h.inflationExpectations;
+    const appliedCredibilityDelta = nextCredibility - h.credibility;
+    this.state.hidden = {
+      ...h,
+      inflationExpectations: nextExpectations,
+      credibility: nextCredibility
+    };
+
+    return {
+      inflationExpectationsDelta: appliedExpectationsDelta,
+      credibilityDelta: appliedCredibilityDelta,
+      inconsistentSignal
+    };
   }
 
   advance(): SimulationState {

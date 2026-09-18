@@ -21,3 +21,17 @@
 - Added recent trajectory history to the developer debug panel.
 - Added lag-shape and eight-meeting policy-ordering tests.
 - Revalidated representative eight-meeting paths without changing core transmission coefficients.
+
+## 0.2.0 — First FOMC Meeting Prototype
+
+- Added a one-meeting vertical slice around the existing economic simulation.
+- Added a cross-current starting economy with elevated inflation, cooling employment, and restrictive financial conditions.
+- Added player-visible staff briefing generation.
+- Added three lightweight adviser models whose recommendations respond to current visible data.
+- Added three natural-language forward-guidance choices.
+- Added context-dependent communication effects on inflation expectations and credibility.
+- Added an extra credibility penalty when guidance and the policy move directly contradict each other.
+- Added -50bp / -25bp / hold / +25bp / +50bp policy choices.
+- Added immediate market-reaction estimates and one-period consequence explanations.
+- Added a default meeting UI while preserving the economic sandbox at `?debug=1`.
+- Added deterministic Phase 2 meeting smoke tests and Vitest coverage.

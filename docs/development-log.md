@@ -165,3 +165,98 @@ Scope remains controlled. No RPG world, campaign content, event library, politic
 ### Review conclusion
 
 Proceed to Phase 2, but only as a single-meeting vertical prototype. The acceptance question for the next iteration is not visual polish; it is whether incomplete data, competing advice, one communication choice, and a policy decision create an understandable and genuinely difficult choice.
+
+## Iteration 3 — Phase 2 Single FOMC Meeting Prototype
+
+### Objective
+
+Build the smallest playable FOMC meeting around the validated simulation and test whether conflicting information, competing advice, communication, and a rate decision create an understandable policy trade-off.
+
+### Features added
+
+- Added a deliberately mixed starting economy: core inflation ~3.0%, unemployment ~4.7%, payroll growth ~65k, and restrictive financial conditions.
+- Added player-visible staff briefing generation using observable releases only.
+- Added three provisional advisers (Ada Price, Maya Fields, Victor Bond) with distinct sensitivity functions.
+- Added three natural-language forward-guidance choices without hawk/dove labels.
+- Added a small communication transmission channel into inflation expectations and credibility.
+- Added an additional credibility penalty when guidance and the policy move directly contradict each other.
+- Added -50bp, -25bp, hold, +25bp, and +50bp policy choices.
+- Added a transparent immediate market-reaction estimate using the adviser median as a temporary market-expectation proxy.
+- Added one-intermeeting-interval consequence explanation.
+- Made the meeting prototype the default browser surface while preserving the developer sandbox at `?debug=1`.
+
+### Features deliberately excluded
+
+- RPG navigation/world;
+- full committee-agent architecture;
+- persuasion mechanics;
+- formal FOMC vote implementation;
+- press conference/media questions;
+- political pressure;
+- event/shock engine;
+- data revisions;
+- campaign sequencing;
+- production art/audio.
+
+### Tests
+
+Executed successfully in this environment:
+
+- all existing Phase 1 simulation smoke tests;
+- 80-seed × 24-period bounded stress test with zero hard-bound hits;
+- trajectory report regression;
+- Phase 2 meeting smoke suite;
+- prototype adviser disagreement: +25bp / -25bp / hold from the same visible cross-current data;
+- adviser regime responsiveness: all advisers tighten in the overheating test and ease in the recession test;
+- hidden-state exclusion from the staff briefing;
+- opposite communication effects on expectations/yields;
+- additional credibility loss for contradictory guidance/policy combinations;
+- first-interval real-economy lag check;
+- deterministic replay of the full meeting result;
+- strict TypeScript checking of simulation, meeting, and non-Phaser UI modules;
+- parse check of all TypeScript source/test/script files.
+
+The Vite/Phaser runtime and Vitest-through-npm remain unexecuted in this environment because npm dependency installation is still unavailable/timing out.
+
+### Play / evaluation
+
+The prototype produces a meaningful initial disagreement without injecting random adviser opinions. Ada Price recommends +25bp because inflation/expectations remain elevated, Maya Fields recommends -25bp because hiring/unemployment have weakened, and Victor Bond recommends hold because financial conditions and market stress already look restrictive.
+
+Communication is not cosmetic. For the same hold decision, inflation-focused guidance lowers the hidden expectations state and lifts the immediate yield estimate, while employment-focused guidance raises expectations and lowers the yield estimate. Contradicting guidance with an opposite-sign rate move creates a larger credibility cost.
+
+The first intermeeting interval intentionally does not reveal a clean policy winner: a +/-25bp move produces an immediate market difference while unemployment and core inflation remain effectively identical because monetary transmission is lagged. This is desirable for the game's core design principle.
+
+### Consistency audit
+
+- Removed an early briefing line that implied a future payroll revision even though the revision system is not implemented yet.
+- The result screen avoids rating the decision as correct/incorrect.
+- Hidden state is not exposed in the normal meeting flow.
+- Advisers do not observe hidden truth and their recommendations are not static.
+- Market surprise is clearly described as using a temporary adviser-median proxy rather than pretending a full expectations model exists.
+- Communication has both an immediate reaction and a persistent expectations/credibility consequence.
+- No later-phase systems were silently smuggled into the prototype.
+
+### Problems discovered
+
+- The immediate market-reaction model is intentionally crude. The adviser median is not a credible long-term substitute for an explicit market policy-expectations distribution.
+- "Likely adviser support" is only a rough compatibility measure, not a real FOMC voting mechanic. Formal voting should wait for Phase 3.
+- Because the first policy-rate effect is correctly lagged, one-meeting consequence screens risk feeling underwhelming. Presentation will need to make market/expectations effects legible without exaggerating real-economy transmission.
+- Browser runtime validation is still blocked in the current execution environment.
+
+### Decisions
+
+- Keep Phase 2 as a DOM-driven placeholder UI rather than spending time on RPG-world presentation.
+- Keep adviser models simple and observable-data-based until the meeting loop is proven useful.
+- Keep communication effects small and context-dependent.
+- Do not tune macro coefficients merely to make one-meeting outcomes more dramatic.
+
+### Remaining risks
+
+- Actual player fun/usability still needs browser playtesting; logic-level evaluation is not a substitute for interaction testing.
+- The adviser scoring thresholds may need calibration once more scenarios exist.
+- The market reaction proxy may create exploitable or overly predictable responses if retained beyond this phase.
+- The prototype has no media question yet, so communication currently happens only through statement guidance.
+
+### Next iteration
+
+Do not build the RPG world yet. First perform a small Phase 2 follow-up focused on browser playtest feedback if available, then either repair the meeting flow or proceed to Phase 3 character/committee mechanics with formal preference state, voting, and limited persuasion.

@@ -1,6 +1,6 @@
 {
   "name": "fomc-chair-strategy-game",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,8 @@
     "test:watch": "vitest",
     "test:smoke": "node --experimental-strip-types scripts/simulation-smoke.ts",
     "check": "npm run test && npm run build",
-    "report:trajectories": "node --experimental-strip-types scripts/trajectory-report.ts"
+    "report:trajectories": "node --experimental-strip-types scripts/trajectory-report.ts",
+    "test:meeting-smoke": "node --experimental-strip-types scripts/meeting-smoke.ts"
   },
   "dependencies": {
     "phaser": "^3.90.0"

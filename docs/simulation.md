@@ -63,7 +63,7 @@ Supply pressure decays over time in the base configuration, making a supply shoc
 
 Low credibility lifts the inflation-expectations target. Sustained restrictive policy during above-target inflation can modestly support credibility; accommodation while inflation is materially high can reduce it.
 
-Communication-driven credibility changes are not yet implemented.
+Phase 2 adds a small communication transmission channel. More inflation-focused guidance lowers inflation expectations modestly and can support credibility when inflation is still materially elevated; employment-focused guidance can ease expectations/conditions but may reduce credibility in that same inflation context. Directly contradicting the sign of guidance with the rate move creates an additional credibility penalty. These magnitudes are intentionally small relative to the multi-period macro transmission.
 
 ## Credit stress
 
@@ -86,7 +86,7 @@ All major state variables have hard safety bounds. This is a development guardra
 - No event shocks beyond initial conditions.
 - No data revisions yet.
 - No distinction between monthly and meeting-frequency data.
-- No communication channel beyond credibility state dynamics.
+- Communication is currently represented by a simple three-state guidance bias rather than a full expectations model.
 
 ## Iteration 2 trajectory validation
 
@@ -99,3 +99,15 @@ Representative eight-meeting paths were compared for baseline, persistent-inflat
 - a one-time 50bp hike has a very small first-period demand effect and a progressively larger separation over subsequent periods.
 
 Because these checks were directionally coherent and stress bounds remained inactive, the core transmission coefficients were left unchanged in this iteration. This avoids tuning the model to a preferred answer before the gameplay layer supplies broader evidence.
+
+## Phase 2 meeting transmission checks
+
+The first-meeting tests verify that:
+
+- communication changes inflation expectations immediately but only modestly;
+- an inflation-focused statement produces a higher immediate yield reaction than an employment-focused statement for the same policy action;
+- contradictory guidance/policy combinations lose more credibility than consistent combinations;
+- a 25bp hike versus a 25bp cut does not instantly create different unemployment/core-inflation outcomes after only one interval because the policy pipeline is deliberately lagged;
+- the same seed and choices reproduce the complete meeting result.
+
+Immediate market-reaction numbers in Phase 2 are meeting-layer estimates, not an explicit yield-curve model.
