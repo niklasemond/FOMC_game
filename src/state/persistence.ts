@@ -79,10 +79,13 @@ export function parseSaveGame(serialized: string): SaveGame {
 }
 
 export class BrowserSessionStore {
-  constructor(
-    private readonly storage: StorageLike,
-    private readonly key = BETA_SAVE_KEY
-  ) {}
+  private readonly storage: StorageLike;
+  private readonly key: string;
+
+  constructor(storage: StorageLike, key = BETA_SAVE_KEY) {
+    this.storage = storage;
+    this.key = key;
+  }
 
   hasSave(): boolean {
     return this.storage.getItem(this.key) !== null;
