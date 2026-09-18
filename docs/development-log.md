@@ -431,3 +431,99 @@ The feature commit is gated by GitHub Actions running all simulation/meeting/com
 ### Next gate
 
 If the two-meeting CI and browser-oriented build remain clean, extend continuity to a minimal multi-meeting session model with explicit meeting history and save/restore before introducing shocks, political pressure, or the RPG world.
+
+## Iteration 6 — Multi-Meeting Session / Save-Restore Gate
+
+### Objective
+
+Create one authoritative multi-meeting container so economy, committee memory, and completed decisions can be saved/restored together, then stress that container across four meetings without building the full campaign.
+
+### Changes
+
+- Added `src/session/` with a pure TypeScript `MeetingSession`.
+- Added a configurable session cap, set to four meetings for this prototype.
+- Added compact ordered meeting-history records containing communication choice, policy action, persuasion attempt/outcome, committee vote, market reaction, credibility delta, and visible before/after releases.
+- Added complete session snapshot/serialization/restore.
+- Added save schema v3 wrapping the session snapshot while retaining v1/v2 types.
+- Routed the meeting UI through `MeetingSession` instead of separately mutating simulation and committee variables.
+- Extended the playable flow from two meetings to four.
+- Added compact previous-decision history to later staff briefings.
+- Added dedicated session smoke/Vitest tests.
+- Added the session smoke suite to the GitHub Actions quality gate.
+- Corrected stale Phase 2 documentation that still described the retired adviser-median expectations proxy.
+
+### Scope deliberately excluded
+
+- meetings 5–8;
+- campaign-mode selection and campaign scoring;
+- autosave/localStorage UI;
+- migration implementation for old save payloads;
+- events and data revisions;
+- media/press conference;
+- political pressure;
+- RPG exploration and production art/audio.
+
+### Acceptance checks
+
+- Four completed meetings create sequential meeting numbers and simulation periods.
+- Session refuses an accidental fifth meeting under the prototype cap.
+- Saving after Meeting 2, restoring, and playing identical Meetings 3–4 produces exactly the same final session snapshot as uninterrupted play.
+- Committee relationship/dissent/persuasion memory survives restore.
+- Same seed and four-meeting decision path reproduce exactly.
+- Existing macro, meeting, committee, and two-meeting regressions remain green.
+- Strict TypeScript and Vite production build remain green in GitHub Actions.
+
+### Consistency audit
+
+- The session layer delegates economics to `EconomicSimulation`, committee behavior to the committee layer, and meeting effects to the meeting resolver.
+- History stores outcomes for inspection but is not fed back into macro equations.
+- Committee memory remains the only institutional history currently affecting future voting behavior.
+- The UI no longer owns an independent committee/simulation state that could diverge from a saved session.
+- The four-meeting cap is explicit and tested so this iteration cannot silently become the eight-meeting campaign.
+- Save schema v3 avoids duplicate copies of simulation/committee state.
+
+### Problems / risks
+
+- Session restore currently validates version/cap shape but does not yet implement migrations from schema v1/v2 payloads.
+- Browser-local persistence is still deliberately absent; serialization is logic-level only.
+- Four meetings increase UI repetition. A real interaction/playability review is increasingly important before adding more mandatory meeting screens.
+- The history record is intentionally compact; later event/media systems may need extension points rather than stuffing arbitrary narrative state into the record.
+- A full campaign will need campaign-level metadata, difficulty parameters, shocks, and legacy scoring above this session layer.
+
+### Next iteration
+
+Do **not** jump directly to politics or the RPG world. First add explicit save migration/adapters and a minimal session-summary/developer inspection view, then decide whether the core architecture is ready to expand from four to the full eight-meeting campaign.
+
+## Periodic Project Review 3 — After Iterations 5–6
+
+### Gameplay
+
+The core loop now survives repeated decisions and carries visible history. The main risk has shifted from “does continuity exist?” to “does repeating the full briefing/adviser/committee/statement/policy/consensus sequence four times feel too procedural?” No additional mandatory gameplay screen should be added without browser-level playtesting evidence.
+
+### Economics
+
+The economic model remains isolated and deterministic. Four meetings are long enough for earlier policy choices to start entering the higher-weight portions of the lag pipeline. No coefficient changes were made merely to create more dramatic session outcomes.
+
+### Player information
+
+Past decisions are now visible as compact history, while hidden state stays out of normal gameplay. Exact committee confidence/preferences remain unusually transparent and should later become a difficulty parameter rather than permanent presentation.
+
+### Characters / committee
+
+Relationship, dissent, and persuasion history persists through session saves. Character memory is still institutional and mechanical rather than narrative. This remains appropriate until the loop proves fun over several meetings.
+
+### Persistence / technical health
+
+GitHub Actions now executes native smoke suites, Vitest, strict TypeScript project builds, and a Vite production build on every main-branch push. The session snapshot is the first authoritative combined save unit. The next technical gap is migration/adaptation from earlier save schemas and an actual browser persistence adapter.
+
+### Political system
+
+Still deferred. This is deliberate. Political pressure will add another source of incentives and noise, so it should not be introduced until persistence and four-meeting pacing are stable.
+
+### Scope
+
+The project remains below full campaign scope: four meetings, no shocks, no press conference, no politics, no RPG map, no legacy scoring. The session cap makes that boundary executable rather than merely documented.
+
+### Review conclusion
+
+Proceed next to **persistence adapters + session inspection**, not yet to the full campaign. If that remains stable and browser playtesting finds the repeated meeting loop acceptable, the architecture should then be ready for an eight-meeting campaign shell.

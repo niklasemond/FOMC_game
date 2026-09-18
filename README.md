@@ -4,7 +4,7 @@ Browser-first monetary-policy strategy/RPG prototype built with TypeScript, Phas
 
 ## Current scope
 
-The project now contains the economic foundation, formal committee mechanics, and a narrow two-meeting continuity prototype:
+The project now contains the economic foundation, formal committee mechanics, and a capped four-meeting session prototype:
 
 - deterministic seeded macroeconomic simulation;
 - hidden economic state and noisy visible indicators;
@@ -13,7 +13,9 @@ The project now contains the economic foundation, formal committee mechanics, an
 - a staff briefing based only on player-visible releases;
 - three early adviser conversations plus eight formal voting committee members;
 - dynamic committee preferences, vote projection, named dissents, relationships, and one limited persuasion attempt per meeting;
-- two sequential meetings using the same economy and committee state;
+- up to four sequential meetings using one persistent economy and committee state;
+- explicit meeting-history records with decisions, votes, persuasion outcomes, market reactions, and visible before/after releases;
+- deterministic session serialization/restore that preserves simulation RNG state, committee memory, and meeting history;
 - persistent dissent history/streaks, prior preferred actions, support history, persuasion counts, and Chair relationships;
 - three natural-language forward-guidance choices;
 - -50bp / -25bp / hold / +25bp / +50bp policy choices;
@@ -22,7 +24,7 @@ The project now contains the economic foundation, formal committee mechanics, an
 - developer trajectory and hidden-state tooling;
 - simulation and meeting smoke tests.
 
-It deliberately does **not** yet contain the RPG world, a full eight-meeting campaign, media Q&A, political pressure, event engine, data revisions, audio, or production save UI.
+It deliberately does **not** yet contain the RPG world, the full eight-meeting campaign, media Q&A, political pressure, event engine, data revisions, audio, or production browser save UI.
 
 ## Run
 
@@ -31,7 +33,7 @@ npm install
 npm run dev
 ```
 
-The default page opens the single-meeting prototype. Add `?debug=1` to the local URL to open the developer economic sandbox instead.
+The default page opens the capped multi-meeting prototype. Add `?debug=1` to the local URL to open the developer economic sandbox instead.
 
 ## Validate
 
@@ -48,6 +50,7 @@ npm run test:smoke
 npm run test:meeting-smoke
 npm run test:committee-smoke
 npm run test:continuity-smoke
+npm run test:session-smoke
 npm run report:trajectories
 ```
 
@@ -57,4 +60,4 @@ One simulation period represents roughly one FOMC intermeeting interval (~6.5 we
 
 ## Current design question
 
-The current prototype tests whether those trade-offs remain coherent across two meetings when prior dissent, persuasion, relationships, and the previous policy decision are allowed to carry forward.
+The current prototype tests whether those trade-offs remain coherent over a short four-meeting session, including deterministic save/restore of the complete economy, committee memory, and decision history.

@@ -1,16 +1,15 @@
-import { EconomicSimulation } from '../simulation/engine.ts';
+import type { EconomicSimulation } from '../simulation/engine.ts';
 import type { PolicyAction } from '../simulation/types.ts';
 import { getAdviserViews } from '../meeting/advisers.ts';
-import { COMMUNICATION_CHOICES, PHASE_2_SCENARIO } from '../meeting/content.ts';
-import { createStaffBriefing, resolvePrototypeMeeting } from '../meeting/meetingEngine.ts';
+import { COMMUNICATION_CHOICES } from '../meeting/content.ts';
+import { createStaffBriefing } from '../meeting/meetingEngine.ts';
 import type { CommunicationChoiceId, MeetingResult } from '../meeting/types.ts';
-import { createInitialCommitteeState } from '../committee/members.ts';
 import { evaluateCommittee, expectedCommitteeAction, tallyCommitteeVote } from '../committee/committeeEngine.ts';
 import type {
   CommitteeMemberId,
-  CommitteeState,
   PersuasionArgument
 } from '../committee/types.ts';
+import { MeetingSession } from '../session/sessionEngine.ts';
 
 const actionLabel = (action: PolicyAction): string => {
   if (action === 50) return '+50bp';
@@ -36,8 +35,7 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
   const root = document.querySelector<HTMLElement>('#debug-panel');
   if (!root) throw new Error('Missing #debug-panel');
 
-  let simulation = initialSimulation ?? new EconomicSimulation(PHASE_2_SCENARIO);
-  let committeeState: CommitteeState = createInitialCommitteeState();
+  let session = new MeetingSession({ simulation: initialSimulation });
   let meetingNumber = 1;
   let stage: 'briefing' | 'advisers' | 'committee' | 'communication' | 'policy' | 'consensus' | 'result' = 'briefing';
   let communicationChoiceId: CommunicationChoiceId | null = null;
@@ -47,8 +45,7 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
   let result: MeetingResult | null = null;
 
   const reset = (): void => {
-    simulation = new EconomicSimulation(PHASE_2_SCENARIO);
-    committeeState = createInitialCommitteeState();
+    session = new MeetingSession();
     meetingNumber = 1;
     stage = 'briefing';
     communicationChoiceId = null;
@@ -60,7 +57,8 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
   };
 
   const renderBriefing = (): string => {
-    const briefing = createStaffBriefing(simulation.getState());
+    const briefing = createStaffBriefing(session.getSimulationState());
+    const history = session.getHistory();
     const continuityCopy = meetingNumber === 1
       ? 'Inflation is still too high. Hiring is losing momentum. Financial conditions are already restrictive. The staff sees no clean answer.'
       : 'One intermeeting interval has passed. The release tape has moved, but much of the previous policy decision is still traveling through the lag pipeline.';
@@ -77,13 +75,19 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
           </article>
         `).join('')}
       </div>
+      ${history.length > 0 ? `
+        <div class="session-history">
+          <strong>Previous decisions</strong>
+          ${history.map((record) => `<span>M${record.meetingNumber}: ${actionLabel(record.policyAction)} · ${record.committeeVote.supportCount}-${record.committeeVote.dissentCount}</span>`).join('')}
+        </div>
+      ` : ''}
       <div class="uncertainty-box"><strong>Staff caveat:</strong> recent payroll data have been unusually noisy. One weak release may not persist, so the staff is reluctant to over-read it.</div>
       <button class="advance" data-next="advisers">READ ADVISER NOTES</button>
     `;
   };
 
   const renderAdvisers = (): string => {
-    const views = getAdviserViews(simulation.getState());
+    const views = getAdviserViews(session.getSimulationState());
     return `
       <div class="meeting-kicker">MEETING ${meetingNumber} · STAFF ADVICE</div>
       <h1 class="debug-title">Three people. One data set.</h1>
@@ -108,7 +112,7 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
   };
 
   const renderCommittee = (): string => {
-    const views = evaluateCommittee(simulation.getState(), committeeState);
+    const views = evaluateCommittee(session.getSimulationState(), session.getCommitteeState());
     return `
       <div class="meeting-kicker">MEETING ${meetingNumber} · COMMITTEE ROOM</div>
       <h1 class="debug-title">Eight voters. Four different models.</h1>
@@ -152,7 +156,7 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
 
   const renderPolicy = (): string => {
     const choice = COMMUNICATION_CHOICES.find((item) => item.id === communicationChoiceId);
-    const views = evaluateCommittee(simulation.getState(), committeeState);
+    const views = evaluateCommittee(session.getSimulationState(), session.getCommitteeState());
     const marketCenter = expectedCommitteeAction(views);
     return `
       <div class="meeting-kicker">MEETING ${meetingNumber} · POLICY DECISION</div>
@@ -168,7 +172,7 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
 
   const renderConsensus = (): string => {
     if (policyAction === null) return '';
-    const views = evaluateCommittee(simulation.getState(), committeeState);
+    const views = evaluateCommittee(session.getSimulationState(), session.getCommitteeState());
     const projection = tallyCommitteeVote(views, policyAction);
     const dissenters = projection.lines.filter((line) => !line.supportsChair);
     return `
@@ -236,9 +240,9 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
       </div>
       <div class="explanation-list">${result.explanation.map((line) => `<p>▸ ${line}</p>`).join('')}</div>
       <div class="uncertainty-box"><strong>Important:</strong> dissent is not automatically failure. This screen reports committee cohesion and economic consequences without grading the policy philosophy.</div>
-      ${meetingNumber < 2
-        ? '<button class="advance" data-next-meeting>ADVANCE TO MEETING 2</button>'
-        : '<button class="advance" data-reset>REPLAY TWO-MEETING PROTOTYPE</button>'}
+      ${session.isComplete()
+        ? '<button class="advance" data-reset>REPLAY FOUR-MEETING PROTOTYPE</button>'
+        : `<button class="advance" data-next-meeting>ADVANCE TO MEETING ${session.getNextMeetingNumber()}</button>`}
       <a class="text-link" href="?debug=1">Open developer sandbox →</a>
     `;
   };
@@ -294,20 +298,19 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
     }));
     root.querySelector<HTMLButtonElement>('[data-finalize]')?.addEventListener('click', () => {
       if (!communicationChoiceId || policyAction === null) return;
-      result = resolvePrototypeMeeting(simulation, communicationChoiceId, policyAction, {
-        committeeState,
+      result = session.resolve({
+        communicationChoiceId,
+        policyAction,
         persuasionAttempt: persuasionTargetId && persuasionArgument
           ? { targetId: persuasionTargetId, argument: persuasionArgument }
           : undefined
       });
-      committeeState = result.committeeState;
       stage = 'result';
       render();
     });
     root.querySelector<HTMLButtonElement>('[data-next-meeting]')?.addEventListener('click', () => {
-      if (!result || meetingNumber >= 2) return;
-      committeeState = result.committeeState;
-      meetingNumber += 1;
+      if (!result || session.isComplete()) return;
+      meetingNumber = session.getNextMeetingNumber();
       stage = 'briefing';
       communicationChoiceId = null;
       policyAction = null;

@@ -9,6 +9,7 @@ Use the requested TypeScript + Phaser + Vite stack. There is no engineering reas
 - `src/simulation/`: pure TypeScript economic model. It has no Phaser or DOM dependency.
 - `src/committee/`: data-driven voting-member definitions, preference evaluation, vote projection, relationships, and limited persuasion. It depends on simulation types/state but not Phaser or the DOM.
 - `src/meeting/`: pure TypeScript single-meeting orchestration, briefing/adviser logic, communication choices, committee integration, and reaction calculation. It depends on the simulation/committee layers but not Phaser or the DOM.
+- `src/session/`: multi-meeting orchestration, compact meeting history, session cap, and combined deterministic serialization/restore. It depends on simulation/committee/meeting layers but not Phaser or the DOM.
 - `src/game/`: Phaser scenes and future world presentation.
 - `src/ui/`: browser UI adapters for the meeting prototype and developer sandbox.
 - `src/state/`: save-format types and future persistence adapters.
@@ -19,7 +20,7 @@ Use the requested TypeScript + Phaser + Vite stack. There is no engineering reas
 
 ## Dependency rule
 
-Simulation code must never import Phaser. The committee and meeting layers may call/read simulation APIs but must remain independent of Phaser and the DOM. Presentation can read meeting/simulation state and dispatch actions, but both simulation and meeting logic remain independently testable.
+Simulation code must never import Phaser. The committee and meeting layers may call/read simulation APIs but must remain independent of Phaser and the DOM. Presentation can read session/meeting/simulation state and dispatch actions, while simulation, committee, meeting, and session logic remain independently testable.
 
 ## Determinism
 
@@ -65,3 +66,20 @@ Committee memory remains owned by the committee layer. The macro simulation neve
 Old schema-v2 committee saves that contain only relationship state remain readable because the newer memory fields default to neutral values when absent.
 
 After a meeting, `recordCommitteeMeeting` updates memory from the actual vote. The next meeting's economic preference is still recomputed from current visible releases; memory only affects willingness to join a nearby compromise.
+
+## Multi-meeting session boundary
+
+`MeetingSession` is now the owner of cross-meeting orchestration. It contains:
+
+- the current serialized-capable `EconomicSimulation`;
+- the current `CommitteeState`;
+- ordered completed-meeting records;
+- a configurable prototype meeting cap (four by default).
+
+The session layer calls the existing single-meeting resolver rather than duplicating meeting logic. After resolution it records a compact history entry with decisions, vote/persuasion outcome, market reaction, credibility delta, and visible before/after releases.
+
+Session serialization stores the full simulation state, including seeded RNG state, plus committee memory and history. Restoring after Meeting 2 and replaying the same Meetings 3–4 choices is required to produce the same final snapshot as uninterrupted play.
+
+Save schema v3 wraps the session snapshot rather than duplicating simulation and committee state at the save-schema level. Schema v1/v2 types remain available for explicit future migration work.
+
+The four-meeting cap is an intentional scope guardrail. It is not the campaign engine.

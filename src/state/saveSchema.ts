@@ -1,5 +1,6 @@
 import type { CommitteeState } from '../committee/types.ts';
 import type { SimulationState } from '../simulation/types.ts';
+import type { MeetingSessionSnapshot } from '../session/types.ts';
 
 export interface SaveGameV1 {
   schemaVersion: 1;
@@ -26,4 +27,15 @@ export interface SaveGameV2 {
   };
 }
 
-export type SaveGame = SaveGameV1 | SaveGameV2;
+export interface SaveGameV3 {
+  schemaVersion: 3;
+  createdAtIso: string;
+  campaignSeed: number;
+  campaignMode: 'warsh' | 'random';
+  session: MeetingSessionSnapshot;
+  presentation: {
+    currentRoom: string;
+  };
+}
+
+export type SaveGame = SaveGameV1 | SaveGameV2 | SaveGameV3;

@@ -59,3 +59,14 @@
 - Added continuity smoke tests and Vitest coverage.
 - Added GitHub Actions validation for smoke tests, Vitest, TypeScript, and the Vite production build.
 - Repaired the TypeScript/Vitest project configuration exposed by the first CI run.
+
+## 0.4.0 — Multi-Meeting Session Layer
+
+- Added a pure TypeScript session layer above simulation, committee, and meeting resolution.
+- Added a four-meeting prototype cap without expanding to the full campaign.
+- Added explicit meeting-history records containing policy/communication choices, persuasion, votes, market reaction, credibility changes, and visible before/after releases.
+- Added deterministic combined session serialization/restore for simulation RNG state, committee memory, and history.
+- Added save schema v3 using the complete meeting-session snapshot.
+- Routed the playable meeting UI through the session layer.
+- Added previous-decision summaries to later staff briefings.
+- Added session smoke tests and Vitest coverage, including interrupted-vs-uninterrupted continuation equivalence.

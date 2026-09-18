@@ -35,9 +35,9 @@ The communication choices are phrased naturally rather than labeled hawkish/neut
 
 The result screen explains observed consequences without rating the player's choice as good or bad. First-interval real-economy outcomes remain heavily lagged, while yields react immediately.
 
-### Temporary simplification
+### Temporary simplification (superseded in Phase 3)
 
-For this prototype only, the median of the three adviser recommendations is used as a proxy for the market's expected policy decision. This keeps the reaction system inspectable while avoiding a premature market-expectations subsystem.
+The original Phase 2 prototype used the median of three adviser recommendations as a temporary policy-expectation proxy. Phase 3 replaced this with the eight-member committee preference distribution. A true market expectations distribution is still deferred.
 
 ## Phase 3 committee mechanics
 
@@ -59,4 +59,14 @@ This creates three types of continuity:
 2. **Institutional continuity:** prior dissents and support are remembered, so a repeated dissenter becomes modestly less willing to compromise.
 3. **Relationship continuity:** successful and failed persuasion changes the Chair relationship and the number of prior persuasion attempts is retained.
 
-The prototype intentionally stops after Meeting 2. This is a gate for memory/pacing, not an abbreviated full campaign.
+The two-meeting gate succeeded and has now been superseded by the capped session prototype below.
+
+## Four-meeting session prototype
+
+The playable loop can now continue for four meetings through a dedicated session layer. Four is deliberately long enough for policy lags and committee memory to begin interacting, but short enough to avoid prematurely declaring the complete campaign architecture finished.
+
+Each completed meeting becomes an inspectable history record. Later staff briefings show compact previous-decision summaries, while the underlying session retains enough structured detail for deterministic restore and debugging.
+
+The critical design rule remains that history is not a scorecard. A meeting record captures what the Chair chose, how the committee voted, what markets did immediately, and what visible releases followed. It does not retroactively label the choice correct or incorrect.
+
+The current session has no endogenous events, revisions, press conference, political pressure, or legacy score. Those systems should be layered only after multi-meeting persistence proves stable.
