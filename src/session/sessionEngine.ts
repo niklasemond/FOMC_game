@@ -4,6 +4,7 @@ import { PHASE_2_SCENARIO } from '../meeting/content.ts';
 import { resolvePrototypeMeeting } from '../meeting/meetingEngine.ts';
 import type { MeetingResult } from '../meeting/types.ts';
 import { EconomicSimulation } from '../simulation/engine.ts';
+import type { ExternalShock } from '../simulation/types.ts';
 import type {
   MeetingSessionSnapshot,
   SessionDecision,
@@ -47,6 +48,10 @@ export class MeetingSession {
 
   getSimulationState() {
     return this.simulation.getState();
+  }
+
+  applyExternalShock(shock: ExternalShock) {
+    return this.simulation.applyExternalShock(shock);
   }
 
   getCommitteeState(): CommitteeState {

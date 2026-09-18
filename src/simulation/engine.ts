@@ -3,6 +3,7 @@ import { POLICY_LAG_WEIGHTS } from './constants.ts';
 import { SeededRng } from './rng.ts';
 import type {
   CommunicationTransmission,
+  ExternalShock,
   GuidanceBias,
   HiddenEconomyState,
   PolicyAction,
@@ -63,6 +64,24 @@ export class EconomicSimulation {
     const next = clamp(current + action / 100, 0, 12);
     this.state.visible.federalFundsRate = round(next);
     this.state.policyHistory[0] = round(next);
+    return this.getState();
+  }
+
+  applyExternalShock(shock: ExternalShock): SimulationState {
+    const h = this.state.hidden;
+    this.state.hidden = {
+      ...h,
+      demandPressure: clamp(h.demandPressure + (shock.demandPressure ?? 0), -1.8, 1.8),
+      supplyPressure: clamp(h.supplyPressure + (shock.supplyPressure ?? 0), -0.8, 1.8),
+      laborTightness: clamp(h.laborTightness + (shock.laborTightness ?? 0), -1.5, 1.5),
+      creditStress: clamp(h.creditStress + (shock.creditStress ?? 0), 0, 1.5),
+      fiscalImpulse: clamp(h.fiscalImpulse + (shock.fiscalImpulse ?? 0), -1.5, 1.5),
+      underlyingInflationGap: clamp(h.underlyingInflationGap + (shock.underlyingInflationGap ?? 0), -1.5, 4.5),
+      inflationExpectations: clamp(h.inflationExpectations + (shock.inflationExpectations ?? 0), 1.4, 5.8),
+      credibility: clamp(h.credibility + (shock.credibility ?? 0), 0.2, 1)
+    };
+    this.state.visible = this.observe(false);
+    this.state.rngState = this.rng.getState();
     return this.getState();
   }
 

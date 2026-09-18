@@ -1,6 +1,6 @@
 {
   "name": "fomc-chair-strategy-game",
-  "version": "0.5.0-arcade.1",
+  "version": "0.5.1-arcade.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -16,7 +16,8 @@
     "test:continuity-smoke": "node --experimental-strip-types scripts/continuity-smoke.ts",
     "test:session-smoke": "node --experimental-strip-types scripts/session-smoke.ts",
     "test:persistence-smoke": "node --experimental-strip-types scripts/persistence-smoke.ts",
-    "test:arcade-smoke": "node --experimental-strip-types scripts/arcade-smoke.ts"
+    "test:arcade-smoke": "node --experimental-strip-types scripts/arcade-smoke.ts",
+    "test:arcade-events-smoke": "node --experimental-strip-types scripts/arcade-events-smoke.ts"
   },
   "dependencies": {
     "phaser": "^3.90.0"

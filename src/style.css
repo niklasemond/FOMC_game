@@ -231,3 +231,6 @@ button, input { font: inherit; }
   .arcade-policy-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .arcade-policy-grid button { padding: 8px 2px; font-size: .65rem; }
 }
+
+.arcade-flash{display:inline-block;border:2px solid #17240d;padding:4px 6px;font-size:.62rem;font-weight:800;letter-spacing:.06em;margin:3px 0 8px;background:#c4d64a}
+.arcade-source{font-size:.58rem;opacity:.8;margin-top:-4px;margin-bottom:8px}

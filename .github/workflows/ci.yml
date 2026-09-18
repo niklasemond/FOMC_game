@@ -22,5 +22,6 @@ jobs:
       - run: npm run test:session-smoke
       - run: npm run test:persistence-smoke
       - run: npm run test:arcade-smoke
+      - run: npm run test:arcade-events-smoke
       - run: npm run test
       - run: npm run build

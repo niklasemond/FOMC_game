@@ -1,6 +1,17 @@
 export type PolicyAction = -50 | -25 | 0 | 25 | 50;
 export type GuidanceBias = -1 | 0 | 1;
 
+export interface ExternalShock {
+  demandPressure?: number;
+  supplyPressure?: number;
+  laborTightness?: number;
+  creditStress?: number;
+  fiscalImpulse?: number;
+  underlyingInflationGap?: number;
+  inflationExpectations?: number;
+  credibility?: number;
+}
+
 export interface CommunicationTransmission {
   inflationExpectationsDelta: number;
   credibilityDelta: number;

@@ -53,3 +53,20 @@ This first branch iteration changes flow only.
 It reuses the existing simulation, committee, meeting-resolution, vote, expectations, credibility, and lag systems. The eight crisis cards are narrative wrappers for now; event-specific macro shocks and animations come next.
 
 This separation lets us test whether the faster cadence feels right before changing economic coefficients or building a full event engine.
+
+## External-event engine
+
+The arcade branch now applies one external shock before each meeting instead of using crisis cards as flavor only. The first authored sequence includes:
+
+- tariff/import-cost shock;
+- direct White House pressure for sharply lower rates;
+- fiscal stimulus;
+- regional-bank stress;
+- geopolitical energy shock;
+- long-yield / Treasury-market stress;
+- a fictional legal fight over a Fed governor;
+- a final combined trade/fiscal/political pressure shock.
+
+These events modify the hidden macro state before the Chair decides. They do not advance the meeting clock by themselves. The player sees the event headline and the resulting visible macro tape, then chooses policy.
+
+The presidential voice is fictional, but intentionally more recognizable: short declarative bursts, repetition, superlatives, all-caps emphasis, “everyone knows,” “very unfair,” and demands for much lower rates. Do not use verbatim real quotations.

@@ -3,6 +3,11 @@ import { COMMUNICATION_CHOICES } from '../meeting/content.ts';
 import { evaluateCommittee, expectedCommitteeAction } from '../committee/committeeEngine.ts';
 import { MeetingSession } from '../session/sessionEngine.ts';
 import { ARCADE_BEATS, presidentialReaction } from '../arcade/content.ts';
+import {
+  applyArcadeEvent,
+  eventForMeeting,
+  type AppliedArcadeEvent
+} from '../arcade/events.ts';
 
 const actionLabel = (action: PolicyAction): string => {
   if (action > 0) return `+${action}bp`;
@@ -19,22 +24,37 @@ export function mountArcadePrototype(): void {
   let selectedPolicy: PolicyAction | null = null;
   let selectedCommunication = COMMUNICATION_CHOICES[1]!.id;
   let lastResult: ReturnType<MeetingSession['resolve']> | null = null;
+  let appliedEvent: AppliedArcadeEvent | null = null;
+  let appliedEventMeetingNumber = 0;
 
   const currentBeat = () => ARCADE_BEATS[Math.min(session.getCompletedMeetingCount(), ARCADE_BEATS.length - 1)]!;
 
+  const ensureCurrentEvent = (): AppliedArcadeEvent => {
+    const meetingNumber = session.getNextMeetingNumber();
+    if (appliedEvent && appliedEventMeetingNumber === meetingNumber) return appliedEvent;
+    const event = eventForMeeting(meetingNumber);
+    appliedEvent = applyArcadeEvent(session, event);
+    appliedEventMeetingNumber = meetingNumber;
+    return appliedEvent;
+  };
+
   const renderHeadline = (): string => {
     const beat = currentBeat();
-    const v = session.getSimulationState().visible;
+    const eventImpact = ensureCurrentEvent();
+    const event = eventImpact.event;
+    const v = eventImpact.visibleAfter;
     return `
       <div class="arcade-kicker">${beat.label} · ~10 MINUTE MODE</div>
-      <h1 class="arcade-headline">${beat.headline}</h1>
-      <p class="arcade-copy">${beat.copy}</p>
+      <div class="arcade-flash">${event.flash}</div>
+      <h1 class="arcade-headline">${event.headline}</h1>
+      <p class="arcade-copy">${event.body}</p>
+      <div class="arcade-source">${event.source}</div>
       <div class="arcade-tape">
         <span>CORE <strong>${v.coreInflation.toFixed(1)}%</strong></span>
         <span>UNEMP <strong>${v.unemployment.toFixed(1)}%</strong></span>
         <span>FUNDS <strong>${v.federalFundsRate.toFixed(2)}%</strong></span>
       </div>
-      <div class="arcade-pressure">${beat.pressure}</div>
+      <div class="arcade-pressure">${event.playerSignal}</div>
       <div class="arcade-whisper">STAFF: “${beat.staffWhisper}”</div>
       <button class="advance" data-go-decision>MAKE THE CALL</button>
     `;
@@ -75,7 +95,7 @@ export function mountArcadePrototype(): void {
     const v = lastResult.postMeetingState.visible;
     const dissenter = lastResult.committeeVote.lines.find((line) => !line.supportsChair);
     return `
-      <div class="arcade-kicker">${currentBeat().label} · AFTERMATH</div>
+      <div class="arcade-kicker">MEETING ${lastResult.postMeetingState.period} · AFTERMATH</div>
       <h1 class="arcade-headline">${actionLabel(lastResult.policyAction)} · ${lastResult.committeeVote.supportCount}-${lastResult.committeeVote.dissentCount}</h1>
       <div class="arcade-market">${lastResult.marketReaction.summary}</div>
       <div class="arcade-reaction-card">
@@ -161,6 +181,7 @@ export function mountArcadePrototype(): void {
         selectedPolicy = null;
         selectedCommunication = COMMUNICATION_CHOICES[1]!.id;
         lastResult = null;
+        appliedEvent = null;
         stage = 'headline';
       }
       render();
@@ -170,6 +191,8 @@ export function mountArcadePrototype(): void {
       selectedPolicy = null;
       selectedCommunication = COMMUNICATION_CHOICES[1]!.id;
       lastResult = null;
+      appliedEvent = null;
+      appliedEventMeetingNumber = 0;
       stage = 'headline';
       render();
     });
