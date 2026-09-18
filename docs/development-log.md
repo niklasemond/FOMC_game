@@ -527,3 +527,52 @@ The project remains below full campaign scope: four meetings, no shocks, no pres
 ### Review conclusion
 
 Proceed next to **persistence adapters + session inspection**, not yet to the full campaign. If that remains stable and browser playtesting finds the repeated meeting loop acceptable, the architecture should then be ready for an eight-meeting campaign shell.
+
+## Iteration 7 — Local Beta Persistence + Session Inspection
+
+### Objective
+
+Make the existing four-meeting prototype practical for the first local beta round without expanding gameplay scope.
+
+### Changes
+
+- Added `BrowserSessionStore` backed by browser localStorage.
+- Added SAVE / LOAD / SESSION / CLEAR SAVE controls to the normal meeting interface.
+- Added an optional session inspector showing completed meetings, visible macro state, policy/vote history, committee dissent history, relationships, and persuasion counts.
+- Added explicit save-schema v1/v2 → v3 migration handling.
+- Added a legacy completed-meeting offset so migration preserves progression without inventing missing old meeting-history records.
+- Added persistence smoke/Vitest coverage including a simulated browser refresh after Meeting 2 followed by deterministic Meetings 3–4 continuation.
+- Added the persistence smoke suite to CI.
+- Added local beta setup instructions to README.
+
+### Scope deliberately excluded
+
+- account/cloud saves;
+- multiple save slots;
+- autosave on every UI interaction;
+- persistence of unfinalized statement/policy selections;
+- campaign scoring;
+- meetings 5–8;
+- new shocks/events/media/political/RPG systems.
+
+### Beta boundary
+
+A save represents the last completed meeting boundary. If the player saves while drafting the next meeting, loading returns to that meeting's briefing with the completed-session state intact. This is intentional for the first beta because it avoids persisting transient UI state before the meeting flow is stable.
+
+### Acceptance gate
+
+- Browser storage round-trips a complete session snapshot.
+- Save after Meeting 2 → simulated refresh/load → same Meetings 3–4 must equal uninterrupted play.
+- V1 migration preserves macro state/progress and creates a neutral committee without fabricated history.
+- V2 migration preserves committee state/progress without fabricated detailed history.
+- Save clearing is deterministic and safe.
+- Existing simulation, meeting, committee, continuity, and session regressions remain green.
+- Strict TypeScript and Vite production build remain green in CI.
+
+### Product decision
+
+This is the first build suitable for a structured local beta round. The primary tester question is now pacing/usability: does four repetitions of the meeting loop remain engaging, and which screens feel informative versus procedural?
+
+### Next gate
+
+Collect local beta observations before adding another mandatory gameplay system. Technical work may continue on beta diagnostics/bug fixes, but the full eight-meeting campaign, political pressure, and RPG world should wait for playtest evidence.

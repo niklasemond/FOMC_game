@@ -143,3 +143,61 @@ button, input { font: inherit; }
   padding: 3px 5px;
   background: rgba(196,214,74,.28);
 }
+
+.beta-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+  border: 2px solid #17240d;
+  padding: 6px;
+  margin-bottom: 9px;
+  background: rgba(196,214,74,.42);
+  font-size: .62rem;
+}
+.beta-controls strong {
+  margin-right: 3px;
+}
+.beta-controls button {
+  border: 2px solid #17240d;
+  background: #8bac0f;
+  color: #17240d;
+  padding: 4px 6px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.beta-controls button:disabled {
+  opacity: .45;
+  cursor: default;
+}
+.beta-controls span {
+  flex: 1 1 180px;
+}
+.session-inspector {
+  margin-top: 10px;
+  border: 3px double #17240d;
+  padding: 9px;
+  background: rgba(139,172,15,.55);
+}
+.session-member-table {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, auto);
+  gap: 4px 8px;
+  margin: 8px 0;
+  font-size: .61rem;
+}
+.inspector-note {
+  font-size: .62rem;
+  line-height: 1.3;
+  margin: 7px 0;
+}
+@media (max-width: 520px) {
+  .session-member-table {
+    grid-template-columns: 1fr auto;
+  }
+  .session-member-table span:nth-child(4n+3),
+  .session-member-table span:nth-child(4n+4) {
+    display: none;
+  }
+}

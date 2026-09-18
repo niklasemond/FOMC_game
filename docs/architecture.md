@@ -12,7 +12,7 @@ Use the requested TypeScript + Phaser + Vite stack. There is no engineering reas
 - `src/session/`: multi-meeting orchestration, compact meeting history, session cap, and combined deterministic serialization/restore. It depends on simulation/committee/meeting layers but not Phaser or the DOM.
 - `src/game/`: Phaser scenes and future world presentation.
 - `src/ui/`: browser UI adapters for the meeting prototype and developer sandbox.
-- `src/state/`: save-format types and future persistence adapters.
+- `src/state/`: versioned save formats plus browser persistence/migration adapters.
 - future `src/campaign/`: campaign sequencing and authored/random campaign definitions.
 - future `src/events/`: data-driven event definitions and event application.
 - future `src/characters/`: committee models and relationship state.
@@ -28,7 +28,13 @@ All simulation randomness comes from a stored seeded PRNG state. The save payloa
 
 ## Persistence direction
 
-Phase 1 implements serialization only. Browser-local persistence is intentionally deferred until a gameplay save flow exists. The schema is versioned from the start so future migration can be explicit.
+The project now has three layers of persistence:
+
+1. `EconomicSimulation` serialization for deterministic macro continuation.
+2. `MeetingSession` serialization for economy + committee + meeting history.
+3. `BrowserSessionStore` for localStorage-backed beta save/load and explicit save-schema migration.
+
+The browser adapter is intentionally narrow and account-free. It stores one local beta slot and treats the last completed meeting boundary as authoritative; unfinalized UI choices are not persisted.
 
 ## Phase 2 meeting boundary
 
@@ -83,3 +89,9 @@ Session serialization stores the full simulation state, including seeded RNG sta
 Save schema v3 wraps the session snapshot rather than duplicating simulation and committee state at the save-schema level. Schema v1/v2 types remain available for explicit future migration work.
 
 The four-meeting cap is an intentional scope guardrail. It is not the campaign engine.
+
+## Legacy save handling
+
+Development save schemas v1/v2 predate detailed meeting history. Migration therefore does **not** invent old vote or market-reaction records. Instead, migrated sessions carry a `completedMeetingOffset` plus the legacy simulation/committee state. New detailed history begins from the next meeting.
+
+V1 saves receive a fresh default committee because no committee state existed in that schema. V2 saves preserve their committee state. V3 saves load directly.

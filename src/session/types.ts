@@ -38,6 +38,7 @@ export interface SessionMeetingRecord {
 export interface MeetingSessionSnapshot {
   version: 1;
   maxMeetings: number;
+  completedMeetingOffset?: number;
   simulation: SimulationState;
   committee: CommitteeState;
   history: SessionMeetingRecord[];

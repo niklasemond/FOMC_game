@@ -10,6 +10,8 @@ import type {
   PersuasionArgument
 } from '../committee/types.ts';
 import { MeetingSession } from '../session/sessionEngine.ts';
+import { buildSessionSummary } from '../session/summary.ts';
+import { BrowserSessionStore } from '../state/persistence.ts';
 
 const actionLabel = (action: PolicyAction): string => {
   if (action === 50) return '+50bp';
@@ -36,7 +38,15 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
   if (!root) throw new Error('Missing #debug-panel');
 
   let session = new MeetingSession({ simulation: initialSimulation });
+  let saveStore: BrowserSessionStore | null = null;
+  try {
+    saveStore = new BrowserSessionStore(window.localStorage);
+  } catch {
+    saveStore = null;
+  }
   let meetingNumber = 1;
+  let showInspector = false;
+  let persistenceMessage = '';
   let stage: 'briefing' | 'advisers' | 'committee' | 'communication' | 'policy' | 'consensus' | 'result' = 'briefing';
   let communicationChoiceId: CommunicationChoiceId | null = null;
   let policyAction: PolicyAction | null = null;
@@ -53,10 +63,68 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
     persuasionTargetId = null;
     persuasionArgument = null;
     result = null;
+    persistenceMessage = '';
     render();
   };
 
+  const renderBetaControls = (): string => {
+    const hasSave = saveStore?.hasSave() ?? false;
+    return `
+      <div class="beta-controls">
+        <strong>LOCAL BETA</strong>
+        <button data-save-session ${saveStore ? '' : 'disabled'}>SAVE</button>
+        <button data-load-session ${hasSave ? '' : 'disabled'}>LOAD</button>
+        <button data-toggle-inspector>${showInspector ? 'HIDE SESSION' : 'SESSION'}</button>
+        <button data-clear-save ${hasSave ? '' : 'disabled'}>CLEAR SAVE</button>
+        <span>${persistenceMessage || (hasSave ? 'Local save available.' : 'No local save yet.')}</span>
+      </div>
+    `;
+  };
+
+  const renderInspector = (): string => {
+    if (!showInspector) return '';
+    const summary = buildSessionSummary(session);
+    const history = session.getHistory();
+    return `
+      <aside class="session-inspector">
+        <div class="meeting-kicker">SESSION INSPECTOR · BETA TOOL</div>
+        <div class="mini-grid">
+          <span>Completed</span><strong>${summary.completedMeetings}/${summary.maxMeetings}</strong>
+          <span>Current funds rate</span><strong>${summary.latestVisible.federalFundsRate.toFixed(2)}%</strong>
+          <span>Core inflation</span><strong>${summary.latestVisible.coreInflation.toFixed(2)}%</strong>
+          <span>Unemployment</span><strong>${summary.latestVisible.unemployment.toFixed(2)}%</strong>
+          <span>Fed credibility</span><strong>${summary.latestVisible.fedCredibility.toFixed(0)}</strong>
+          <span>Total recorded dissents</span><strong>${summary.totalDissents}</strong>
+        </div>
+        ${summary.legacyMeetingOffset > 0 ? `<p class="inspector-note">Migrated save: ${summary.legacyMeetingOffset} earlier meeting(s) are preserved as an offset without invented detailed history.</p>` : ''}
+        <div class="session-history">
+          <strong>Detailed meeting history</strong>
+          ${history.length === 0
+            ? '<span>None yet.</span>'
+            : history.map((record) => `<span>M${record.meetingNumber}: ${actionLabel(record.policyAction)} · vote ${record.committeeVote.supportCount}-${record.committeeVote.dissentCount} · 10Y ${record.marketReaction.treasuryYieldDeltaBp >= 0 ? '+' : ''}${record.marketReaction.treasuryYieldDeltaBp}bp</span>`).join('')}
+        </div>
+        <div class="session-member-table">
+          ${summary.members.map((member) => `
+            <span>${member.id}</span>
+            <span>rel ${Math.round(member.relationshipWithChair * 100)}%</span>
+            <span>dissent ${member.priorDissents}</span>
+            <span>persuasion ${member.persuasionAttempts}</span>
+          `).join('')}
+        </div>
+        <p class="inspector-note">Save/load occurs at the last completed meeting boundary. Unfinalized statement/policy selections are intentionally not persisted.</p>
+      </aside>
+    `;
+  };
+
   const renderBriefing = (): string => {
+    if (session.isComplete()) {
+      return `
+        <div class="meeting-kicker">FOUR-MEETING BETA COMPLETE</div>
+        <h1 class="debug-title">Session complete.</h1>
+        <p class="meeting-copy">Use SESSION to inspect the run, SAVE to keep it locally, or start a fresh four-meeting prototype.</p>
+        <button class="advance" data-reset>START NEW SESSION</button>
+      `;
+    }
     const briefing = createStaffBriefing(session.getSimulationState());
     const history = session.getHistory();
     const continuityCopy = meetingNumber === 1
@@ -249,7 +317,7 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
 
   const render = (): void => {
     root.classList.add('meeting-panel');
-    root.innerHTML = stage === 'briefing'
+    const mainContent = stage === 'briefing'
       ? renderBriefing()
       : stage === 'advisers'
         ? renderAdvisers()
@@ -262,6 +330,7 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
               : stage === 'consensus'
                 ? renderConsensus()
                 : renderResult();
+    root.innerHTML = renderBetaControls() + mainContent + renderInspector();
 
     root.querySelectorAll<HTMLButtonElement>('[data-next]').forEach((button) => button.addEventListener('click', () => {
       stage = button.dataset.next as typeof stage;
@@ -317,6 +386,45 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
       persuasionTargetId = null;
       persuasionArgument = null;
       result = null;
+      render();
+    });
+    root.querySelector<HTMLButtonElement>('[data-save-session]')?.addEventListener('click', () => {
+      try {
+        if (!saveStore) throw new Error('Browser storage is unavailable.');
+        saveStore.save(session, { currentRoom: stage });
+        persistenceMessage = `Saved locally after ${session.getCompletedMeetingCount()} completed meeting(s).`;
+      } catch (error) {
+        persistenceMessage = error instanceof Error ? error.message : 'Save failed.';
+      }
+      render();
+    });
+    root.querySelector<HTMLButtonElement>('[data-load-session]')?.addEventListener('click', () => {
+      try {
+        const loaded = saveStore?.load();
+        if (!loaded) throw new Error('No local save found.');
+        session = loaded;
+        meetingNumber = session.isComplete()
+          ? session.getMaxMeetings()
+          : session.getNextMeetingNumber();
+        stage = 'briefing';
+        communicationChoiceId = null;
+        policyAction = null;
+        persuasionTargetId = null;
+        persuasionArgument = null;
+        result = null;
+        persistenceMessage = `Loaded ${session.getCompletedMeetingCount()}/${session.getMaxMeetings()} completed meetings.`;
+      } catch (error) {
+        persistenceMessage = error instanceof Error ? error.message : 'Load failed.';
+      }
+      render();
+    });
+    root.querySelector<HTMLButtonElement>('[data-toggle-inspector]')?.addEventListener('click', () => {
+      showInspector = !showInspector;
+      render();
+    });
+    root.querySelector<HTMLButtonElement>('[data-clear-save]')?.addEventListener('click', () => {
+      saveStore?.clear();
+      persistenceMessage = 'Local save cleared.';
       render();
     });
     root.querySelector<HTMLButtonElement>('[data-reset]')?.addEventListener('click', reset);

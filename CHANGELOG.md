@@ -70,3 +70,12 @@
 - Routed the playable meeting UI through the session layer.
 - Added previous-decision summaries to later staff briefings.
 - Added session smoke tests and Vitest coverage, including interrupted-vs-uninterrupted continuation equivalence.
+
+## 0.4.1 — Local Beta Persistence
+
+- Added browser-local save/load via localStorage.
+- Added explicit v1/v2 development-save migration handling into v3 session snapshots.
+- Added legacy meeting offsets so old saves can preserve progress without fabricating missing detailed history.
+- Added an optional session inspector with current macro state, meeting history, vote margins, dissents, relationships, and persuasion counts.
+- Added SAVE / LOAD / SESSION / CLEAR SAVE controls to the local beta UI.
+- Added persistence smoke tests and Vitest coverage for simulated browser refresh continuation.

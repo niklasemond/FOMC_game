@@ -70,3 +70,9 @@ Each completed meeting becomes an inspectable history record. Later staff briefi
 The critical design rule remains that history is not a scorecard. A meeting record captures what the Chair chose, how the committee voted, what markets did immediately, and what visible releases followed. It does not retroactively label the choice correct or incorrect.
 
 The current session has no endogenous events, revisions, press conference, political pressure, or legacy score. Those systems should be layered only after multi-meeting persistence proves stable.
+
+## Local beta instrumentation
+
+The local beta toolbar is development instrumentation rather than an in-world gameplay system. SAVE and LOAD operate at the last completed meeting boundary. SESSION opens an optional inspector rather than inserting another mandatory screen into the meeting loop.
+
+The inspector shows enough state to support useful tester reports—policy path, vote margins, visible macro state, dissent counts, Chair relationships, and persuasion counts—without exposing hidden demand/supply/neutral-rate state in normal play.

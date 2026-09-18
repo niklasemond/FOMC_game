@@ -17,6 +17,7 @@ export interface CreateMeetingSessionOptions {
   committeeState?: CommitteeState;
   history?: SessionMeetingRecord[];
   maxMeetings?: number;
+  completedMeetingOffset?: number;
 }
 
 export class MeetingSession {
@@ -24,17 +25,22 @@ export class MeetingSession {
   private committeeState: CommitteeState;
   private history: SessionMeetingRecord[];
   private readonly maxMeetings: number;
+  private readonly completedMeetingOffset: number;
 
   constructor(options: CreateMeetingSessionOptions = {}) {
     this.simulation = options.simulation ?? new EconomicSimulation(PHASE_2_SCENARIO);
     this.committeeState = structuredClone(options.committeeState ?? createInitialCommitteeState());
     this.history = structuredClone(options.history ?? []);
     this.maxMeetings = options.maxMeetings ?? DEFAULT_PROTOTYPE_MEETINGS;
+    this.completedMeetingOffset = options.completedMeetingOffset ?? 0;
 
     if (!Number.isInteger(this.maxMeetings) || this.maxMeetings < 1) {
       throw new Error('maxMeetings must be a positive integer');
     }
-    if (this.history.length > this.maxMeetings) {
+    if (!Number.isInteger(this.completedMeetingOffset) || this.completedMeetingOffset < 0) {
+      throw new Error('completedMeetingOffset must be a non-negative integer');
+    }
+    if (this.completedMeetingOffset + this.history.length > this.maxMeetings) {
       throw new Error('Meeting history exceeds the session meeting cap');
     }
   }
@@ -52,11 +58,15 @@ export class MeetingSession {
   }
 
   getCompletedMeetingCount(): number {
-    return this.history.length;
+    return this.completedMeetingOffset + this.history.length;
+  }
+
+  getCompletedMeetingOffset(): number {
+    return this.completedMeetingOffset;
   }
 
   getNextMeetingNumber(): number {
-    return this.history.length + 1;
+    return this.getCompletedMeetingCount() + 1;
   }
 
   getMaxMeetings(): number {
@@ -64,7 +74,7 @@ export class MeetingSession {
   }
 
   isComplete(): boolean {
-    return this.history.length >= this.maxMeetings;
+    return this.getCompletedMeetingCount() >= this.maxMeetings;
   }
 
   resolve(decision: SessionDecision): MeetingResult {
@@ -108,6 +118,7 @@ export class MeetingSession {
     return {
       version: 1,
       maxMeetings: this.maxMeetings,
+      completedMeetingOffset: this.completedMeetingOffset,
       simulation: this.simulation.getState(),
       committee: structuredClone(this.committeeState),
       history: structuredClone(this.history)
@@ -130,7 +141,8 @@ export class MeetingSession {
     if (!Array.isArray(snapshot.history)) {
       throw new Error('Invalid meeting-session history');
     }
-    if (snapshot.history.length > snapshot.maxMeetings) {
+    const completedMeetingOffset = snapshot.completedMeetingOffset ?? 0;
+    if (completedMeetingOffset + snapshot.history.length > snapshot.maxMeetings) {
       throw new Error('Meeting history exceeds the session meeting cap');
     }
 
@@ -139,7 +151,8 @@ export class MeetingSession {
       simulation,
       committeeState: snapshot.committee,
       history: snapshot.history,
-      maxMeetings: snapshot.maxMeetings
+      maxMeetings: snapshot.maxMeetings,
+      completedMeetingOffset
     });
   }
 }

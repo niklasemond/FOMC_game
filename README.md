@@ -24,12 +24,32 @@ The project now contains the economic foundation, formal committee mechanics, an
 - developer trajectory and hidden-state tooling;
 - simulation and meeting smoke tests.
 
-It deliberately does **not** yet contain the RPG world, the full eight-meeting campaign, media Q&A, political pressure, event engine, data revisions, audio, or production browser save UI.
+It deliberately does **not** yet contain the RPG world, the full eight-meeting campaign, media Q&A, political pressure, event engine, data revisions, audio, or production-grade cloud/account saves. The local beta now has browser-local save/load.
+
+## Local beta quick start
+
+Requirements: Node.js 22 and Git.
+
+```bash
+git clone https://github.com/niklasemond/FOMC_game.git
+cd FOMC_game
+npm install
+npm run dev
+```
+
+Open the local URL printed by Vite. The LOCAL BETA toolbar lets you save/load the last completed meeting boundary and inspect the current four-meeting session. A browser refresh does not destroy a saved session.
+
+For a clean update later:
+
+```bash
+git pull
+npm install
+npm run dev
+```
 
 ## Run
 
 ```bash
-npm install
 npm run dev
 ```
 
@@ -51,6 +71,7 @@ npm run test:meeting-smoke
 npm run test:committee-smoke
 npm run test:continuity-smoke
 npm run test:session-smoke
+npm run test:persistence-smoke
 npm run report:trajectories
 ```
 
