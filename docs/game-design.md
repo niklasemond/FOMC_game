@@ -38,3 +38,13 @@ The result screen explains observed consequences without rating the player's cho
 ### Temporary simplification
 
 For this prototype only, the median of the three adviser recommendations is used as a proxy for the market's expected policy decision. This keeps the reaction system inspectable while avoiding a premature market-expectations subsystem.
+
+## Phase 3 committee mechanics
+
+The player now sees eight preliminary committee preferences before choosing communication and policy. A member's preferred action is distinct from their final vote: members with a nearby preference may support a committee compromise depending on stubbornness, consensus tendency, confidence, and relationship with the Chair.
+
+The player receives one persuasion attempt per meeting prototype. They choose a dissenting member and one argument focused on inflation credibility, employment insurance, or financial stability. Argument fit matters. Success can convert that member's vote but does not alter the member's preferred policy.
+
+The Chair's own vote is included, making nine total votes in the current prototype. Dissent is descriptive rather than an automatic loss condition. Ordinary +/-25bp moves in the current cross-current scenario produce limited dissent, while extreme +/-50bp moves can deeply divide the committee.
+
+Severe fragmentation produces a small credibility penalty; unanimity produces a small positive institutional signal. These effects are intentionally modest relative to communication and macroeconomic transmission.

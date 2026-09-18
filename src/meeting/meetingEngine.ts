@@ -1,5 +1,14 @@
 import { EconomicSimulation } from '../simulation/engine.ts';
 import type { PolicyAction, SimulationState } from '../simulation/types.ts';
+import {
+  attemptPersuasion,
+  committeeCredibilityImpulse,
+  evaluateCommittee,
+  expectedCommitteeAction,
+  tallyCommitteeVote
+} from '../committee/committeeEngine.ts';
+import { createInitialCommitteeState } from '../committee/members.ts';
+import type { CommitteeState, PersuasionAttempt } from '../committee/types.ts';
 import { getAdviserViews } from './advisers.ts';
 import { COMMUNICATION_CHOICES } from './content.ts';
 import type {
@@ -10,11 +19,6 @@ import type {
 } from './types.ts';
 
 const round = (value: number, digits = 2): number => Number(value.toFixed(digits));
-
-function medianAction(actions: readonly PolicyAction[]): PolicyAction {
-  const sorted = [...actions].sort((a, b) => a - b);
-  return (sorted[Math.floor(sorted.length / 2)] ?? 0) as PolicyAction;
-}
 
 export function createStaffBriefing(state: SimulationState): BriefingItem[] {
   const v = state.visible;
@@ -97,17 +101,25 @@ function explainResult(pre: SimulationState, post: SimulationState, result: Mark
   return explanations;
 }
 
+export interface ResolvePrototypeMeetingOptions {
+  committeeState?: CommitteeState;
+  persuasionAttempt?: PersuasionAttempt;
+}
+
 export function resolvePrototypeMeeting(
   simulation: EconomicSimulation,
   communicationChoiceId: CommunicationChoiceId,
-  policyAction: PolicyAction
+  policyAction: PolicyAction,
+  options: ResolvePrototypeMeetingOptions = {}
 ): MeetingResult {
   const preMeetingState = simulation.getState();
   const adviserViews = getAdviserViews(preMeetingState);
+  const startingCommitteeState = options.committeeState ?? createInitialCommitteeState();
+  const committeeViews = evaluateCommittee(preMeetingState, startingCommitteeState);
   const communicationChoice = COMMUNICATION_CHOICES.find((choice) => choice.id === communicationChoiceId);
   if (!communicationChoice) throw new Error(`Unknown communication choice: ${communicationChoiceId}`);
 
-  const expectedPolicyAction = medianAction(adviserViews.map((view) => view.preferredAction));
+  const expectedPolicyAction = expectedCommitteeAction(committeeViews);
   const marketReaction = calculateMarketReaction(
     preMeetingState,
     expectedPolicyAction,
@@ -115,15 +127,26 @@ export function resolvePrototypeMeeting(
     communicationChoice.guidanceBias
   );
 
+  const persuasion = attemptPersuasion(
+    committeeViews,
+    startingCommitteeState,
+    policyAction,
+    options.persuasionAttempt
+  );
+  const committeeVote = tallyCommitteeVote(committeeViews, policyAction, persuasion.outcome);
+
   simulation.setPolicy(policyAction);
   const communicationTransmission = simulation.applyCommunication(
     communicationChoice.guidanceBias,
     policyAction
   );
+  const committeeCredibilityDelta = simulation.applyInstitutionalCredibility(
+    committeeCredibilityImpulse(committeeVote)
+  );
   const postMeetingState = simulation.advance();
 
-  const likelySupport = adviserViews.filter((view) => Math.abs(view.preferredAction - policyAction) <= 25).length;
-  const likelyDissents = adviserViews.length - likelySupport;
+  const communicationCredibilityDeltaPoints = round(communicationTransmission.credibilityDelta * 100, 1);
+  const committeeCredibilityDeltaPoints = round(committeeCredibilityDelta * 100, 1);
 
   return {
     preMeetingState,
@@ -131,11 +154,15 @@ export function resolvePrototypeMeeting(
     policyAction,
     communicationChoice,
     communicationExpectationsDeltaBp: Math.round(communicationTransmission.inflationExpectationsDelta * 100),
-    credibilityDeltaPoints: round(communicationTransmission.credibilityDelta * 100, 1),
+    communicationCredibilityDeltaPoints,
+    committeeCredibilityDeltaPoints,
+    credibilityDeltaPoints: round(communicationCredibilityDeltaPoints + committeeCredibilityDeltaPoints, 1),
     adviserViews,
+    committeeViews,
+    committeeState: persuasion.committeeState,
+    committeeVote,
+    persuasionOutcome: persuasion.outcome,
     marketReaction,
-    likelySupport,
-    likelyDissents,
     explanation: explainResult(preMeetingState, postMeetingState, marketReaction)
   };
 }

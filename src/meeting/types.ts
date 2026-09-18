@@ -1,3 +1,9 @@
+import type {
+  CommitteeMemberView,
+  CommitteeState,
+  CommitteeVote,
+  PersuasionOutcome
+} from '../committee/types.ts';
 import type { GuidanceBias, PolicyAction, SimulationState } from '../simulation/types.ts';
 
 export type CommunicationChoiceId = 'inflation_confidence' | 'data_dependent' | 'employment_risks';
@@ -42,10 +48,14 @@ export interface MeetingResult {
   policyAction: PolicyAction;
   communicationChoice: CommunicationChoice;
   communicationExpectationsDeltaBp: number;
+  communicationCredibilityDeltaPoints: number;
+  committeeCredibilityDeltaPoints: number;
   credibilityDeltaPoints: number;
   adviserViews: AdviserView[];
+  committeeViews: CommitteeMemberView[];
+  committeeState: CommitteeState;
+  committeeVote: CommitteeVote;
+  persuasionOutcome: PersuasionOutcome;
   marketReaction: MarketReaction;
-  likelySupport: number;
-  likelyDissents: number;
   explanation: string[];
 }

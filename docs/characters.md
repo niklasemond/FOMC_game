@@ -1,23 +1,47 @@
 # Characters
 
-## Phase 2 status
+## Phase 3 committee prototype
 
-The full FOMC character system is **not** implemented yet. Phase 2 introduces only three lightweight adviser prototypes so the single-meeting loop can test whether competing interpretations are useful.
+Phase 3 adds eight fictional voting members as data-driven committee definitions. The player remains the Chair and casts a ninth vote for the chosen policy action.
 
-### Ada Price
+The committee members are not locked into permanent hawk/dove actions. Each has a policy bias, inflation sensitivity, employment sensitivity, financial-stability sensitivity, stubbornness, consensus tendency, communication style, and relationship with the Chair. Their preferred policy is recalculated from current visible economic releases.
 
-Inflation-risk governor. Places relatively high weight on core inflation, inflation expectations, and wage growth. She can recommend easing in a sufficiently weak economy; the model does not lock her into a permanent hawkish action.
+### Ada Price — Governor · inflation-risk hawk
 
-### Maya Fields
+High inflation sensitivity, high stubbornness, low consensus tendency. She can still ease in a sufficiently weak economy.
 
-Labor economist. Places relatively high weight on unemployment, payroll growth, and GDP while still reacting to inflation. She can recommend tightening in a genuinely overheated economy.
+### Maya Fields — Governor · labor economist
 
-### Victor Bond
+High employment sensitivity and moderate consensus tendency. She can still tighten in a genuinely overheated economy.
 
-Markets-desk liaison. Places more weight on financial conditions, market stress, and inflation expectations. He tends to worry when market tightening is already doing substantial work.
+### Elias Stone — Governor · financial-stability specialist
 
-## Implementation rule
+Balances inflation risk against leverage, stress, and restrictive financial conditions.
 
-These are **not** the final character-agent architecture. Their Phase 2 recommendations are deterministic scoring functions over visible releases only. They do not observe hidden economic truth.
+### Nora Reed — Regional president · Main Street listener
 
-Tests confirm that all three recommend tightening in the overheating test regime and easing in the recession test regime. This prevents the current archetypes from collapsing into fixed “hawk/dove” dialogue buttons.
+Places substantial weight on employment and regional weakness while retaining meaningful inflation sensitivity.
+
+### Theo Quill — Governor · data obsessive
+
+Relatively inflation-sensitive with a small tightening bias, but his preference changes when the data regime changes.
+
+### June Harbor — Vice Chair · consensus builder
+
+Balanced mandate weights, low stubbornness, and a strong tendency to support workable committee compromises.
+
+### Martin Vega — Regional president · banking-system worrier
+
+Pays close attention to financial stability and banking stress without ignoring inflation.
+
+### Serena Vale — Governor · swing voter
+
+Balanced sensitivities and relatively high consensus tendency. She often becomes pivotal when the committee is split.
+
+## Early adviser conversations
+
+The existing pre-meeting adviser screen remains deliberately small. Ada Price and Maya Fields appear there as early voting-member conversations, while Victor Bond is a non-voting markets-desk liaison. The formal committee screen then shows all eight voting members.
+
+## Persuasion rule
+
+Persuasion changes willingness to support a committee compromise; it does **not** rewrite a member's economic beliefs or preferred action. One well-matched argument can move one vote. A poorly matched argument can fail, and very large policy gaps cannot be bridged by one conversation.

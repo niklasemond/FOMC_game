@@ -7,7 +7,8 @@ Use the requested TypeScript + Phaser + Vite stack. There is no engineering reas
 ## Layer boundaries
 
 - `src/simulation/`: pure TypeScript economic model. It has no Phaser or DOM dependency.
-- `src/meeting/`: pure TypeScript single-meeting orchestration, briefing/adviser logic, communication choices, and reaction calculation. It depends on the simulation layer but not Phaser or the DOM.
+- `src/committee/`: data-driven voting-member definitions, preference evaluation, vote projection, relationships, and limited persuasion. It depends on simulation types/state but not Phaser or the DOM.
+- `src/meeting/`: pure TypeScript single-meeting orchestration, briefing/adviser logic, communication choices, committee integration, and reaction calculation. It depends on the simulation/committee layers but not Phaser or the DOM.
 - `src/game/`: Phaser scenes and future world presentation.
 - `src/ui/`: browser UI adapters for the meeting prototype and developer sandbox.
 - `src/state/`: save-format types and future persistence adapters.
@@ -18,7 +19,7 @@ Use the requested TypeScript + Phaser + Vite stack. There is no engineering reas
 
 ## Dependency rule
 
-Simulation code must never import Phaser. The meeting layer may call simulation APIs but must remain independent of Phaser and the DOM. Presentation can read meeting/simulation state and dispatch actions, but both simulation and meeting logic remain independently testable.
+Simulation code must never import Phaser. The committee and meeting layers may call/read simulation APIs but must remain independent of Phaser and the DOM. Presentation can read meeting/simulation state and dispatch actions, but both simulation and meeting logic remain independently testable.
 
 ## Determinism
 
@@ -37,3 +38,13 @@ The single-meeting prototype is intentionally split into three parts:
 3. `src/ui/meetingPanel.ts` owns only screen progression and rendering.
 
 The adviser median is temporarily used as a market-expectation proxy for policy-surprise calculation. This is explicitly a Phase 2 placeholder and should be replaced by a proper market-expectations model later rather than embedded into the simulation engine.
+
+## Phase 3 committee boundary
+
+The committee system is intentionally separate from both macro transition equations and UI rendering. `src/committee/members.ts` stores member archetypes and parameters; `committeeEngine.ts` converts visible releases into preferences, projects support, resolves one persuasion attempt, and tallies votes.
+
+The player's chosen policy remains executable even when the committee is divided, but the vote is recorded and severe fragmentation can create a small institutional-credibility cost. This keeps dissent meaningful without turning every non-unanimous vote into failure.
+
+The market-expectation proxy now uses the eight-member committee preference distribution rather than the three-adviser median. It is still a simplified proxy and should later become an explicit market expectations system.
+
+Save schema v2 adds committee relationship state so future multi-meeting campaigns can preserve interpersonal consequences without changing the simulation-engine save payload.

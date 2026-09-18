@@ -35,3 +35,16 @@
 - Added immediate market-reaction estimates and one-period consequence explanations.
 - Added a default meeting UI while preserving the economic sandbox at `?debug=1`.
 - Added deterministic Phase 2 meeting smoke tests and Vitest coverage.
+
+## 0.3.0 — Committee Mechanics
+
+- Added eight data-driven fictional voting committee members.
+- Added dynamic committee preference calculation from visible releases.
+- Added committee-centered policy-expectation proxy.
+- Added formal vote projection and final vote tally including the player/Chair.
+- Added consensus behavior so nearby preferences do not automatically become dissents.
+- Added one targeted persuasion attempt with inflation, employment, or financial-stability arguments.
+- Added persistent Chair-relationship state and save-schema v2 support.
+- Added modest credibility effects for unanimity and deep committee fragmentation.
+- Added committee UI, vote-whipping step, and named dissents in the result screen.
+- Added committee smoke tests and Vitest coverage.

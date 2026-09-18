@@ -4,14 +4,15 @@ Browser-first monetary-policy strategy/RPG prototype built with TypeScript, Phas
 
 ## Current scope
 
-The project now contains the Phase 0/1 economic foundation plus a deliberately narrow Phase 2 single-meeting vertical prototype:
+The project now contains the economic foundation, the single-meeting vertical prototype, and the first Phase 3 committee mechanics:
 
 - deterministic seeded macroeconomic simulation;
 - hidden economic state and noisy visible indicators;
 - five-period lagged monetary-policy transmission;
 - credit-stress, credibility, and expectations channels;
 - a staff briefing based only on player-visible releases;
-- three lightweight advisers with different sensitivities whose recommendations change with the economy;
+- three early adviser conversations plus eight formal voting committee members;
+- dynamic committee preferences, vote projection, named dissents, relationships, and one limited persuasion attempt;
 - three natural-language forward-guidance choices;
 - -50bp / -25bp / hold / +25bp / +50bp policy choices;
 - immediate market-reaction estimates;
@@ -19,7 +20,7 @@ The project now contains the Phase 0/1 economic foundation plus a deliberately n
 - developer trajectory and hidden-state tooling;
 - simulation and meeting smoke tests.
 
-It deliberately does **not** yet contain the RPG world, full FOMC voting/persuasion, media Q&A, political pressure, event engine, campaign sequencing, data revisions, audio, or production save UI.
+It deliberately does **not** yet contain the RPG world, multi-meeting committee relationship progression in gameplay, media Q&A, political pressure, event engine, campaign sequencing, data revisions, audio, or production save UI.
 
 ## Run
 
@@ -43,6 +44,7 @@ The pure-TypeScript smoke checks can also be run directly:
 ```bash
 npm run test:smoke
 npm run test:meeting-smoke
+npm run test:committee-smoke
 npm run report:trajectories
 ```
 
@@ -52,4 +54,4 @@ One simulation period represents roughly one FOMC intermeeting interval (~6.5 we
 
 ## Current design question
 
-The Phase 2 prototype is testing one thing: can incomplete/conflicting evidence, competing advisers, communication, and a rate decision create an understandable decision with real trade-offs before any RPG-world production work begins?
+The current prototype tests whether incomplete evidence, competing interpretations, committee politics, one persuasion attempt, communication, and a rate decision create meaningful trade-offs before any RPG-world production work begins.

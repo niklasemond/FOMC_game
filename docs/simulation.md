@@ -111,3 +111,7 @@ The first-meeting tests verify that:
 - the same seed and choices reproduce the complete meeting result.
 
 Immediate market-reaction numbers in Phase 2 are meeting-layer estimates, not an explicit yield-curve model.
+
+## Phase 3 institutional signal
+
+The simulation engine now exposes a generic institutional-credibility impulse so external systems can affect credibility without embedding committee logic inside macro transition equations. The committee layer uses it only after the vote: unanimity can modestly support credibility, ordinary one- or two-member dissent is neutral, and deeper fragmentation can reduce credibility slightly.

@@ -66,6 +66,17 @@ export class EconomicSimulation {
     return this.getState();
   }
 
+  applyInstitutionalCredibility(delta: number): number {
+    const h = this.state.hidden;
+    const nextCredibility = clamp(h.credibility + delta, 0.2, 1);
+    const appliedDelta = nextCredibility - h.credibility;
+    this.state.hidden = {
+      ...h,
+      credibility: nextCredibility
+    };
+    return appliedDelta;
+  }
+
   applyCommunication(guidanceBias: GuidanceBias, policyAction: PolicyAction): CommunicationTransmission {
     const h = this.state.hidden;
     const inconsistentSignal =

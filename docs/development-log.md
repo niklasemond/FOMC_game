@@ -260,3 +260,130 @@ The first intermeeting interval intentionally does not reveal a clean policy win
 ### Next iteration
 
 Do not build the RPG world yet. First perform a small Phase 2 follow-up focused on browser playtest feedback if available, then either repair the meeting flow or proceed to Phase 3 character/committee mechanics with formal preference state, voting, and limited persuasion.
+
+## Iteration 4 — Phase 3 Committee Mechanics
+
+### Objective
+
+Replace the Phase 2 rough “likely support” estimate with a real, inspectable committee model: eight dynamic voting members, formal vote tallies, persistent Chair relationships, and one limited persuasion attempt.
+
+### Changes
+
+- Added `src/committee/` as a pure TypeScript layer separate from simulation, meeting orchestration, and UI.
+- Added eight fictional voting members with policy bias, mandate sensitivities, financial-stability sensitivity, stubbornness, consensus tendency, communication style, and Chair relationship.
+- Added dynamic preference calculation from visible economic releases only.
+- Added a committee-centered market policy-expectation proxy, replacing the three-adviser median.
+- Added vote-projection rules that distinguish preferred policy from willingness to support a committee compromise.
+- Added one targeted persuasion attempt using an inflation, employment, or financial-stability argument.
+- Added deterministic persuasion success/failure based on argument fit, relationship, consensus tendency, stubbornness, confidence, and policy distance.
+- Added formal named vote tallies including the Chair as a ninth vote.
+- Added modest institutional-credibility effects for unanimity and severe fragmentation.
+- Added committee screens and a consensus/vote-whipping step to the meeting UI.
+- Added save schema v2 with committee relationship state while preserving the v1 type for migration compatibility.
+
+### Features deliberately excluded
+
+- repeated persuasion attempts;
+- bargaining over multiple statement clauses;
+- side payments or command-style control of member votes;
+- full multi-meeting relationship progression in the playable loop;
+- regional economic datasets;
+- media, political pressure, event engine, RPG navigation, art/audio production.
+
+### Tests
+
+Executed successfully:
+
+- eight-member committee construction and unique preference distribution;
+- mixed-economy starting distribution: +25 / -25 / hold represented simultaneously;
+- all committee members tighten in an overheating test regime and ease in a recession test regime;
+- hold vote projects 8–1, +/-25bp projects 7–2, and extreme +/-50bp moves produce deep fragmentation in the prototype scenario;
+- well-matched persuasion can convert one dissent without changing the member's preferred policy;
+- mismatched persuasion can fail;
+- deep fragmentation creates a worse institutional-credibility impulse than ordinary dissent;
+- all prior Phase 2 meeting smoke checks;
+- all Phase 1 macro simulation checks, including zero hard-bound hits in the 80-seed × 24-period stress run;
+- strict TypeScript checking for simulation, committee, meeting, and non-Phaser UI modules;
+- parse checks for all TypeScript files.
+
+### Play / evaluation
+
+The committee creates a more legible political layer without changing the economic answer into a popularity contest. In the cross-current economy, two members prefer +25bp, two prefer -25bp, and four prefer hold. Because compromise willingness is distinct from preferred policy, a hold can receive broad support without pretending everyone shares the same forecast.
+
+The persuasion mechanic is intentionally narrow. A successful conversation means “I still disagree, but I will support the Chair's compromise,” not “you changed my model.” This produces a useful distinction between policy beliefs, committee leadership, and final voting behavior.
+
+### Consistency audit
+
+- Committee members read only visible releases, not hidden economic truth.
+- Member preferences are dynamic across regimes rather than fixed hawk/dove scripts.
+- Persuasion cannot alter a member's preferred action.
+- One conversation cannot bridge a policy gap larger than 50bp.
+- The player receives only one persuasion attempt in the prototype.
+- Ordinary dissent is not penalized as failure; only severe fragmentation has a modest credibility consequence.
+- The player/Chair's chosen policy remains executable even when the committee is divided, preserving the master design requirement while making disagreement consequential.
+- Market expectations now use the formal committee rather than the unrelated staff-adviser median.
+
+### Problems discovered
+
+- The vote-support function is still heuristic and will need tuning once multiple meetings reveal whether consensus is too easy or too difficult.
+- The formal committee currently has no member-specific memory beyond Chair relationship; previous dissents, persuasion attempts, and forecast errors are not yet remembered.
+- Persuasion is deterministic. This is desirable for debugging now but may feel gameable if the exact formula becomes obvious.
+- The player can see preliminary preferred actions with fairly high precision. Later difficulty levels may need more uncertainty around member positions.
+- Browser/Vite runtime validation remains blocked in this execution environment unless npm dependency access becomes available.
+
+### Decisions
+
+- Use eight NPC voting members plus the player/Chair as a ninth vote.
+- Keep committee logic outside the macro simulation engine.
+- Treat relationships as persistent state now, even though the playable prototype still contains one meeting.
+- Let persuasion change vote support rather than economic beliefs.
+- Keep institutional-credibility effects from committee division small.
+
+### Remaining risks
+
+- The committee and persuasion models have not yet been tested over an eight-meeting campaign.
+- Committee preference scoring is qualitative rather than empirically estimated.
+- No explicit market probability distribution exists yet; committee preferences remain only a proxy for expectations.
+- UI density increased substantially with eight members and needs real browser usability testing.
+
+### Next iteration
+
+Before building the RPG world, connect the committee state across at least two sequential meetings so relationships, prior dissent, and persuasion consequences can persist. This should be a narrow multi-meeting state-transition test, not the full eight-meeting campaign.
+
+## Periodic Project Review 2 — After Iterations 3–4
+
+### Gameplay
+
+The project now has a recognizable decision loop rather than only a sandbox: briefing, interpretations, committee leans, communication, policy, consensus management, vote, and consequences. The largest unanswered question remains browser-level pacing and whether the number of screens feels engaging rather than bureaucratic.
+
+### Economics
+
+The macro model remains stable under the committee additions. Committee mechanics do not directly rewrite economic variables; they interact through communication, the selected policy, and small institutional-credibility impulses. This separation is healthy.
+
+### Player information
+
+The normal meeting flow still hides true economic state. Committee preferences are visible in the current prototype for learnability, but later difficulty settings should be able to obscure confidence or exact positions.
+
+### Characters
+
+Eight voting archetypes now have distinct parameterized models and can change policy recommendations when the economy changes. They are still shallow as characters because memory, regional information, and interpersonal history are not yet active.
+
+### Pacing
+
+Phase 3 adds two screens (committee room and consensus). This may be worthwhile because they produce new decisions, but browser playtesting is required before adding any more mandatory screens.
+
+### Political system
+
+Still deliberately deferred. The committee loop should survive a small multi-meeting test before political pressure is introduced.
+
+### Technical health
+
+Layer separation remains strong: simulation, committee, meeting orchestration, and UI are distinct. Save schema v2 anticipates committee persistence. Determinism remains intact. Browser dependency installation remains the main validation gap in this environment.
+
+### Scope
+
+Scope remains controlled. No RPG map, political event system, media subsystem, or content library has been started. The project is still focused on proving the core meeting loop.
+
+### Review conclusion
+
+Proceed to a **two-meeting continuity prototype**, not the full campaign. The next gate is whether committee relationships and previous decisions create meaningful memory without producing runaway complexity.
