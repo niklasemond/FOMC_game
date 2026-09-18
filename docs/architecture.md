@@ -48,3 +48,20 @@ The player's chosen policy remains executable even when the committee is divided
 The market-expectation proxy now uses the eight-member committee preference distribution rather than the three-adviser median. It is still a simplified proxy and should later become an explicit market expectations system.
 
 Save schema v2 adds committee relationship state so future multi-meeting campaigns can preserve interpersonal consequences without changing the simulation-engine save payload.
+
+## Two-meeting continuity boundary
+
+Committee memory remains owned by the committee layer. The macro simulation never reads dissent history, persuasion counts, or interpersonal state.
+
+`CommitteeMemberState` now carries backward-compatible optional memory fields:
+
+- cumulative prior dissents;
+- current dissent streak;
+- number of persuasion attempts;
+- last preferred policy action;
+- whether the member supported the Chair last meeting;
+- relationship with the Chair.
+
+Old schema-v2 committee saves that contain only relationship state remain readable because the newer memory fields default to neutral values when absent.
+
+After a meeting, `recordCommitteeMeeting` updates memory from the actual vote. The next meeting's economic preference is still recomputed from current visible releases; memory only affects willingness to join a nearby compromise.

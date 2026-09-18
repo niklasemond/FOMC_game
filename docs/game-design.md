@@ -48,3 +48,15 @@ The player receives one persuasion attempt per meeting prototype. They choose a 
 The Chair's own vote is included, making nine total votes in the current prototype. Dissent is descriptive rather than an automatic loss condition. Ordinary +/-25bp moves in the current cross-current scenario produce limited dissent, while extreme +/-50bp moves can deeply divide the committee.
 
 Severe fragmentation produces a small credibility penalty; unanimity produces a small positive institutional signal. These effects are intentionally modest relative to communication and macroeconomic transmission.
+
+## Two-meeting continuity prototype
+
+The meeting loop can now advance once rather than resetting immediately. Meeting 2 starts from the exact post-Meeting-1 economy and committee state.
+
+This creates three types of continuity:
+
+1. **Economic continuity:** the previous rate move is in the lag pipeline and the next release tape has changed.
+2. **Institutional continuity:** prior dissents and support are remembered, so a repeated dissenter becomes modestly less willing to compromise.
+3. **Relationship continuity:** successful and failed persuasion changes the Chair relationship and the number of prior persuasion attempts is retained.
+
+The prototype intentionally stops after Meeting 2. This is a gate for memory/pacing, not an abbreviated full campaign.

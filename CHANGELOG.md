@@ -48,3 +48,14 @@
 - Added modest credibility effects for unanimity and deep committee fragmentation.
 - Added committee UI, vote-whipping step, and named dissents in the result screen.
 - Added committee smoke tests and Vitest coverage.
+
+## 0.3.1 — Two-Meeting Continuity
+
+- Added a two-meeting playable sequence without building the full campaign.
+- Added persistent committee memory for prior dissents, dissent streaks, prior preferred actions, prior support, persuasion attempts, and Chair relationships.
+- Added modest dissent inertia to future compromise willingness without changing members' economic preference models.
+- Made persuasion-attempt counts and relationship consequences persist across meetings.
+- Added Meeting 2 UI flow and committee-history readouts.
+- Added continuity smoke tests and Vitest coverage.
+- Added GitHub Actions validation for smoke tests, Vitest, TypeScript, and the Vite production build.
+- Repaired the TypeScript/Vitest project configuration exposed by the first CI run.

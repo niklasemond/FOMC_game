@@ -45,3 +45,9 @@ The existing pre-meeting adviser screen remains deliberately small. Ada Price an
 ## Persuasion rule
 
 Persuasion changes willingness to support a committee compromise; it does **not** rewrite a member's economic beliefs or preferred action. One well-matched argument can move one vote. A poorly matched argument can fail, and very large policy gaps cannot be bridged by one conversation.
+
+## Meeting-to-meeting memory
+
+Members now remember a deliberately small set of institutional facts: whether they dissented, whether dissent is becoming a streak, what policy they preferred last time, whether they ultimately supported the Chair, how often the Chair has tried to persuade them, and their current relationship with the Chair.
+
+This memory does not alter the inflation/employment/financial-stability weights used to form the member's economic preference. Instead, repeated dissent creates modest inertia in willingness to compromise, while persuasion affects the relationship channel. Supporting a later compromise resets the dissent streak but does not erase the historical dissent count.

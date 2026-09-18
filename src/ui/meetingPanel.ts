@@ -38,6 +38,7 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
 
   let simulation = initialSimulation ?? new EconomicSimulation(PHASE_2_SCENARIO);
   let committeeState: CommitteeState = createInitialCommitteeState();
+  let meetingNumber = 1;
   let stage: 'briefing' | 'advisers' | 'committee' | 'communication' | 'policy' | 'consensus' | 'result' = 'briefing';
   let communicationChoiceId: CommunicationChoiceId | null = null;
   let policyAction: PolicyAction | null = null;
@@ -48,6 +49,7 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
   const reset = (): void => {
     simulation = new EconomicSimulation(PHASE_2_SCENARIO);
     committeeState = createInitialCommitteeState();
+    meetingNumber = 1;
     stage = 'briefing';
     communicationChoiceId = null;
     policyAction = null;
@@ -59,10 +61,13 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
 
   const renderBriefing = (): string => {
     const briefing = createStaffBriefing(simulation.getState());
+    const continuityCopy = meetingNumber === 1
+      ? 'Inflation is still too high. Hiring is losing momentum. Financial conditions are already restrictive. The staff sees no clean answer.'
+      : 'One intermeeting interval has passed. The release tape has moved, but much of the previous policy decision is still traveling through the lag pipeline.';
     return `
-      <div class="meeting-kicker">MEETING 1 · STAFF BRIEFING</div>
+      <div class="meeting-kicker">MEETING ${meetingNumber} · STAFF BRIEFING</div>
       <h1 class="debug-title">Crosscurrents</h1>
-      <p class="meeting-copy">Inflation is still too high. Hiring is losing momentum. Financial conditions are already restrictive. The staff sees no clean answer.</p>
+      <p class="meeting-copy">${continuityCopy}</p>
       <div class="briefing-grid">
         ${briefing.map((item) => `
           <article class="briefing-item">
@@ -80,7 +85,7 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
   const renderAdvisers = (): string => {
     const views = getAdviserViews(simulation.getState());
     return `
-      <div class="meeting-kicker">MEETING 1 · STAFF ADVICE</div>
+      <div class="meeting-kicker">MEETING ${meetingNumber} · STAFF ADVICE</div>
       <h1 class="debug-title">Three people. One data set.</h1>
       <p class="meeting-copy">These are three early conversations: two voting members and one markets liaison. Their views are not the vote; the full committee comes next.</p>
       <div class="adviser-list">
@@ -105,7 +110,7 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
   const renderCommittee = (): string => {
     const views = evaluateCommittee(simulation.getState(), committeeState);
     return `
-      <div class="meeting-kicker">MEETING 1 · COMMITTEE ROOM</div>
+      <div class="meeting-kicker">MEETING ${meetingNumber} · COMMITTEE ROOM</div>
       <h1 class="debug-title">Eight voters. Four different models.</h1>
       <p class="meeting-copy">These are preliminary policy preferences, not binding votes. Members may still support a committee compromise even when it is not their first choice.</p>
       <div class="committee-grid">
@@ -116,6 +121,9 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
               <div class="adviser-name">${view.name}</div>
               <div class="adviser-role">${view.role}</div>
               <div class="committee-lean">Leans <strong>${recommendationLabel(view.preferredAction)}</strong> · ${Math.round(view.confidence * 100)}% confidence</div>
+              <div class="committee-memory">${meetingNumber > 1
+                ? 'History: ' + view.priorDissents + ' prior dissent(s) · streak ' + view.dissentStreak + ' · Chair relationship ' + Math.round(view.relationshipWithChair * 100) + '%'
+                : 'First meeting: no prior vote memory.'}</div>
               <p>${view.rationale}</p>
             </div>
           </article>
@@ -127,7 +135,7 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
   };
 
   const renderCommunication = (): string => `
-    <div class="meeting-kicker">MEETING 1 · FORWARD GUIDANCE</div>
+    <div class="meeting-kicker">MEETING ${meetingNumber} · FORWARD GUIDANCE</div>
     <h1 class="debug-title">What do you want markets to hear?</h1>
     <p class="meeting-copy">This wording moves expectations before the next data release. The labels do not tell you which choice is safer.</p>
     <div class="choice-list">
@@ -147,7 +155,7 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
     const views = evaluateCommittee(simulation.getState(), committeeState);
     const marketCenter = expectedCommitteeAction(views);
     return `
-      <div class="meeting-kicker">MEETING 1 · POLICY DECISION</div>
+      <div class="meeting-kicker">MEETING ${meetingNumber} · POLICY DECISION</div>
       <h1 class="debug-title">Set the federal funds rate</h1>
       <div class="selected-guidance"><strong>Your draft guidance:</strong><br>“${choice?.statement ?? ''}”</div>
       <p class="meeting-copy">The committee's preliminary preferences center near <strong>${recommendationLabel(marketCenter)}</strong>. Markets use the committee, not your staff advisers, as the policy-expectation proxy.</p>
@@ -164,7 +172,7 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
     const projection = tallyCommitteeVote(views, policyAction);
     const dissenters = projection.lines.filter((line) => !line.supportsChair);
     return `
-      <div class="meeting-kicker">MEETING 1 · CONSENSUS</div>
+      <div class="meeting-kicker">MEETING ${meetingNumber} · CONSENSUS</div>
       <h1 class="debug-title">Whip the vote — once.</h1>
       <p class="meeting-copy">Your proposal is <strong>${actionLabel(policyAction)}</strong>. Before any persuasion, the vote projects <strong>${projection.supportCount}-${projection.dissentCount}</strong>, including your own vote. You may make one targeted case; persuasion can change willingness to support a compromise, not a member's economic beliefs.</p>
       <div class="vote-list">
@@ -193,7 +201,7 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
     const before = result.preMeetingState.visible;
     const after = result.postMeetingState.visible;
     return `
-      <div class="meeting-kicker">MEETING 1 · AFTERMATH</div>
+      <div class="meeting-kicker">MEETING ${meetingNumber} · AFTERMATH</div>
       <h1 class="debug-title">The decision is out.</h1>
       <div class="result-banner">
         <strong>${actionLabel(result.policyAction)}</strong>
@@ -228,7 +236,9 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
       </div>
       <div class="explanation-list">${result.explanation.map((line) => `<p>▸ ${line}</p>`).join('')}</div>
       <div class="uncertainty-box"><strong>Important:</strong> dissent is not automatically failure. This screen reports committee cohesion and economic consequences without grading the policy philosophy.</div>
-      <button class="advance" data-reset>REPLAY THIS MEETING</button>
+      ${meetingNumber < 2
+        ? '<button class="advance" data-next-meeting>ADVANCE TO MEETING 2</button>'
+        : '<button class="advance" data-reset>REPLAY TWO-MEETING PROTOTYPE</button>'}
       <a class="text-link" href="?debug=1">Open developer sandbox →</a>
     `;
   };
@@ -292,6 +302,18 @@ export function mountMeetingPrototype(initialSimulation?: EconomicSimulation): v
       });
       committeeState = result.committeeState;
       stage = 'result';
+      render();
+    });
+    root.querySelector<HTMLButtonElement>('[data-next-meeting]')?.addEventListener('click', () => {
+      if (!result || meetingNumber >= 2) return;
+      committeeState = result.committeeState;
+      meetingNumber += 1;
+      stage = 'briefing';
+      communicationChoiceId = null;
+      policyAction = null;
+      persuasionTargetId = null;
+      persuasionArgument = null;
+      result = null;
       render();
     });
     root.querySelector<HTMLButtonElement>('[data-reset]')?.addEventListener('click', reset);

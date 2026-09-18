@@ -5,6 +5,7 @@ import {
   committeeCredibilityImpulse,
   evaluateCommittee,
   expectedCommitteeAction,
+  recordCommitteeMeeting,
   tallyCommitteeVote
 } from '../committee/committeeEngine.ts';
 import { createInitialCommitteeState } from '../committee/members.ts';
@@ -134,6 +135,11 @@ export function resolvePrototypeMeeting(
     options.persuasionAttempt
   );
   const committeeVote = tallyCommitteeVote(committeeViews, policyAction, persuasion.outcome);
+  const updatedCommitteeState = recordCommitteeMeeting(
+    committeeViews,
+    committeeVote,
+    persuasion.committeeState
+  );
 
   simulation.setPolicy(policyAction);
   const communicationTransmission = simulation.applyCommunication(
@@ -159,7 +165,7 @@ export function resolvePrototypeMeeting(
     credibilityDeltaPoints: round(communicationCredibilityDeltaPoints + committeeCredibilityDeltaPoints, 1),
     adviserViews,
     committeeViews,
-    committeeState: persuasion.committeeState,
+    committeeState: updatedCommitteeState,
     committeeVote,
     persuasionOutcome: persuasion.outcome,
     marketReaction,

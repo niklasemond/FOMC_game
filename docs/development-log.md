@@ -387,3 +387,47 @@ Scope remains controlled. No RPG map, political event system, media subsystem, o
 ### Review conclusion
 
 Proceed to a **two-meeting continuity prototype**, not the full campaign. The next gate is whether committee relationships and previous decisions create meaningful memory without producing runaway complexity.
+
+## Iteration 5 — Two-Meeting Continuity Prototype
+
+### Objective
+
+Test whether the meeting/committee loop remains coherent when one decision actually carries into the next meeting, without expanding immediately to the full eight-meeting campaign.
+
+### Changes
+
+- Added optional persistent committee-memory fields for prior dissents, dissent streaks, prior preferred action, prior support, and persuasion-attempt count.
+- Kept Chair relationship as the main interpersonal state and made persuasion consequences persist into Meeting 2.
+- Added a post-vote committee-memory transition.
+- Added modest dissent inertia to compromise willingness while keeping economic preferences driven only by current visible data.
+- Added a two-meeting UI path using the same simulation instance and committee state.
+- Added committee-history readouts to Meeting 2.
+- Added dedicated continuity smoke/Vitest coverage.
+- Added GitHub Actions CI and repaired previously hidden TypeScript/Vitest build-configuration defects.
+
+### Scope deliberately excluded
+
+- meetings 3–8;
+- campaign scoring;
+- member-specific narrative memories;
+- regional datasets;
+- events/data revisions;
+- press conference/media system;
+- political pressure;
+- RPG navigation or production art/audio.
+
+### Consistency audit
+
+- Memory does not directly change a member's economic preferred action.
+- A member who supports a later compromise has their dissent streak reset, but cumulative dissent history remains.
+- Persuasion changes relationship/support behavior rather than silently rewriting beliefs.
+- Missing memory fields from earlier schema-v2 committee state default safely to neutral values.
+- Meeting 2 consumes the real post-Meeting-1 simulation state rather than a handcrafted reset scenario.
+
+### Validation plan
+
+The feature commit is gated by GitHub Actions running all simulation/meeting/committee/continuity smoke suites, the complete Vitest suite, strict TypeScript project build, and Vite production build.
+
+### Next gate
+
+If the two-meeting CI and browser-oriented build remain clean, extend continuity to a minimal multi-meeting session model with explicit meeting history and save/restore before introducing shocks, political pressure, or the RPG world.

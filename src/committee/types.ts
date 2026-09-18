@@ -30,6 +30,11 @@ export interface CommitteeMemberDefinition {
 export interface CommitteeMemberState {
   id: CommitteeMemberId;
   relationshipWithChair: number;
+  priorDissents?: number;
+  dissentStreak?: number;
+  persuasionAttempts?: number;
+  lastPreferredAction?: PolicyAction | null;
+  lastSupportedChair?: boolean | null;
 }
 
 export interface CommitteeState {
@@ -46,6 +51,11 @@ export interface CommitteeMemberView {
   confidence: number;
   uncertainty: number;
   relationshipWithChair: number;
+  priorDissents: number;
+  dissentStreak: number;
+  persuasionAttempts: number;
+  lastPreferredAction: PolicyAction | null;
+  lastSupportedChair: boolean | null;
   stubbornness: number;
   consensusSeeking: number;
   inflationSensitivity: number;

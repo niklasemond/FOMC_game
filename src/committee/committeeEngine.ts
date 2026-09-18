@@ -52,8 +52,12 @@ function committeeSignals(state: SimulationState): {
   };
 }
 
+function memberMemoryFor(state: CommitteeState, id: CommitteeMemberId) {
+  return state.members.find((member) => member.id === id);
+}
+
 function relationshipFor(state: CommitteeState, id: CommitteeMemberId): number {
-  return state.members.find((member) => member.id === id)?.relationshipWithChair ?? 0.5;
+  return memberMemoryFor(state, id)?.relationshipWithChair ?? 0.5;
 }
 
 function confidenceFromScore(score: number): number {
@@ -82,6 +86,7 @@ export function evaluateCommittee(state: SimulationState, committeeState: Commit
       member.financialStabilitySensitivity * signals.stability;
     const preferredAction = actionFromScore(score);
     const confidence = confidenceFromScore(score);
+    const memory = memberMemoryFor(committeeState, member.id);
 
     return {
       id: member.id,
@@ -93,6 +98,11 @@ export function evaluateCommittee(state: SimulationState, committeeState: Commit
       confidence,
       uncertainty: round(1 - confidence),
       relationshipWithChair: relationshipFor(committeeState, member.id),
+      priorDissents: memory?.priorDissents ?? 0,
+      dissentStreak: memory?.dissentStreak ?? 0,
+      persuasionAttempts: memory?.persuasionAttempts ?? 0,
+      lastPreferredAction: memory?.lastPreferredAction ?? null,
+      lastSupportedChair: memory?.lastSupportedChair ?? null,
       stubbornness: member.stubbornness,
       consensusSeeking: member.consensusSeeking,
       inflationSensitivity: member.inflationSensitivity,
@@ -112,11 +122,16 @@ export function expectedCommitteeAction(views: readonly CommitteeMemberView[]): 
 }
 
 function compromiseWillingness(view: CommitteeMemberView): number {
+  const dissentInertia =
+    0.06 * Math.min(2, view.dissentStreak) +
+    (view.lastSupportedChair === false ? 0.03 : 0);
+
   return clamp(
     0.45 * view.consensusSeeking +
       0.30 * view.relationshipWithChair +
       0.25 * (1 - view.stubbornness) +
-      0.15 * (1 - view.confidence),
+      0.15 * (1 - view.confidence) -
+      dissentInertia,
     0,
     1
   );
@@ -166,9 +181,13 @@ export function attemptPersuasion(
   const view = views.find((member) => member.id === attempt.targetId);
   if (!view) throw new Error(`Unknown committee member: ${attempt.targetId}`);
 
+  const countedState = structuredClone(committeeState);
+  const countedTarget = countedState.members.find((member) => member.id === view.id);
+  if (countedTarget) countedTarget.persuasionAttempts = (countedTarget.persuasionAttempts ?? 0) + 1;
+
   if (wouldSupportPolicy(view, policyAction)) {
     return {
-      committeeState: structuredClone(committeeState),
+      committeeState: countedState,
       outcome: {
         attempted: true,
         targetId: view.id,
@@ -183,8 +202,11 @@ export function attemptPersuasion(
 
   const distance = Math.abs(view.preferredAction - policyAction);
   if (distance > 50) {
+    if (countedTarget) {
+      countedTarget.relationshipWithChair = round(clamp(countedTarget.relationshipWithChair - 0.01, 0, 1));
+    }
     return {
-      committeeState: structuredClone(committeeState),
+      committeeState: countedState,
       outcome: {
         attempted: true,
         targetId: view.id,
@@ -211,7 +233,7 @@ export function attemptPersuasion(
   const success = persuasionPower >= resistance;
   const relationshipDelta = success ? 0.03 : -0.02;
 
-  const nextState = structuredClone(committeeState);
+  const nextState = countedState;
   const targetState = nextState.members.find((member) => member.id === view.id);
   if (targetState) {
     targetState.relationshipWithChair = round(clamp(targetState.relationshipWithChair + relationshipDelta, 0, 1));
@@ -283,6 +305,30 @@ export function tallyCommitteeVote(
     lines,
     fragmentation
   };
+}
+
+export function recordCommitteeMeeting(
+  views: readonly CommitteeMemberView[],
+  vote: CommitteeVote,
+  committeeState: CommitteeState
+): CommitteeState {
+  const nextState = structuredClone(committeeState);
+
+  for (const view of views) {
+    const memberState = nextState.members.find((member) => member.id === view.id);
+    const line = vote.lines.find((voteLine) => voteLine.memberId === view.id);
+    if (!memberState || !line) continue;
+
+    memberState.priorDissents =
+      (memberState.priorDissents ?? 0) + (line.supportsChair ? 0 : 1);
+    memberState.dissentStreak = line.supportsChair
+      ? 0
+      : (memberState.dissentStreak ?? 0) + 1;
+    memberState.lastPreferredAction = view.preferredAction;
+    memberState.lastSupportedChair = line.supportsChair;
+  }
+
+  return nextState;
 }
 
 export function committeeCredibilityImpulse(vote: CommitteeVote): number {

@@ -119,7 +119,12 @@ export function createInitialCommitteeState(): CommitteeState {
   return {
     members: COMMITTEE_MEMBERS.map((member) => ({
       id: member.id,
-      relationshipWithChair: member.initialRelationshipWithChair
+      relationshipWithChair: member.initialRelationshipWithChair,
+      priorDissents: 0,
+      dissentStreak: 0,
+      persuasionAttempts: 0,
+      lastPreferredAction: null,
+      lastSupportedChair: null
     }))
   };
 }

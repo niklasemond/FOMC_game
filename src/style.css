@@ -117,3 +117,10 @@ button, input { font: inherit; }
   .vote-line { grid-template-columns: 1fr auto; }
   .vote-line em { grid-column: 1 / -1; }
 }
+
+.committee-memory {
+  margin-top: 4px;
+  font-size: .62rem;
+  line-height: 1.25;
+  opacity: .82;
+}
