@@ -97,4 +97,35 @@ check('80-seed 24-period bounded stress run', () => {
   console.log(`INFO stress-bound-hits=${boundHits}`);
 });
 
+check('one-time hike transmits gradually', () => {
+  const setup = { seed: 90, federalFundsRate: 3, hidden: { neutralRate: 3, demandPressure: 0.3, underlyingInflationGap: 0.8, laborTightness: 0.3 } };
+  const hike = new EconomicSimulation(setup);
+  const hold = new EconomicSimulation(setup);
+  hike.setPolicy(50);
+  const demandSeparation: number[] = [];
+  for (let t = 0; t < 5; t += 1) {
+    demandSeparation.push(Math.abs(hike.advance().hidden.demandPressure - hold.advance().hidden.demandPressure));
+  }
+  assert(demandSeparation[0]! < demandSeparation[3]!);
+  assert(demandSeparation[0]! < 0.01);
+});
+
+check('eight-meeting inflation paths retain tradeoffs', () => {
+  const setup = { seed: 102, federalFundsRate: 4, hidden: { demandPressure: 0.8, supplyPressure: 0.15, underlyingInflationGap: 1.7, inflationPersistence: 0.78, neutralRate: 3, laborTightness: 0.8 } };
+  const hike = new EconomicSimulation(setup);
+  const hold = new EconomicSimulation(setup);
+  const cut = new EconomicSimulation(setup);
+  const hikePath = [25,25,25,25,0,0,0,0] as const;
+  const holdPath = [0,0,0,0,0,0,0,0] as const;
+  const cutPath = [-25,-25,-25,-25,0,0,0,0] as const;
+  for (let i = 0; i < 8; i += 1) {
+    hike.setPolicy(hikePath[i] ?? 0); hold.setPolicy(holdPath[i] ?? 0); cut.setPolicy(cutPath[i] ?? 0);
+    hike.advance(); hold.advance(); cut.advance();
+  }
+  assert(hike.getState().hidden.underlyingInflationGap < hold.getState().hidden.underlyingInflationGap);
+  assert(hold.getState().hidden.underlyingInflationGap < cut.getState().hidden.underlyingInflationGap);
+  assert(hike.getState().hidden.laborTightness < hold.getState().hidden.laborTightness);
+  assert(hold.getState().hidden.laborTightness < cut.getState().hidden.laborTightness);
+});
+
 console.log('All executable Phase 1 smoke checks passed.');

@@ -15,6 +15,7 @@ This iteration intentionally contains only:
 - developer debug interface with -25bp / hold / +25bp and period advance;
 - local save/restore serialization at the simulation layer;
 - simulation scenario tests and stress tests;
+- eight-meeting trajectory comparison tooling and an in-browser recent-history table;
 - architecture/design documentation.
 
 It deliberately does **not** contain the RPG world, FOMC characters, media system, event engine, campaign content, political-pressure content, audio, or production save UI.
@@ -36,11 +37,17 @@ npm run check
 
 This runs the simulation test suite and a production TypeScript/Vite build.
 
+For a compact comparison of representative eight-meeting policy paths:
+
+```bash
+npm run report:trajectories
+```
+
 ## Debug controls
 
 The right-hand panel exposes both visible releases and hidden state. Hidden values are developer-only and exist to make model behavior inspectable before gameplay obscures them.
 
-Policy changes are placed into a five-period lag structure. Data releases contain deterministic seeded measurement noise.
+One simulation period represents roughly one FOMC intermeeting interval (~6.5 weeks), so eight periods approximate one campaign year. Policy changes are placed into a five-period lag structure. Data releases contain deterministic seeded measurement noise.
 
 ## Design goal for this iteration
 

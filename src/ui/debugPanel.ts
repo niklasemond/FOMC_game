@@ -1,4 +1,5 @@
 import type { EconomicSimulation } from '../simulation/engine.ts';
+import { SIMULATION_PERIOD_WEEKS } from '../simulation/constants.ts';
 import type { PolicyAction, SimulationState } from '../simulation/types.ts';
 
 const fmt = (value: number, suffix = ''): string => `${value.toFixed(Number.isInteger(value) ? 0 : 2)}${suffix}`;
@@ -23,6 +24,17 @@ function visibleRows(state: SimulationState): string {
   return rows.map(([label, value]) => `<span>${label}</span><strong>${value}</strong>`).join('');
 }
 
+
+function historyRows(history: readonly SimulationState[]): string {
+  return history
+    .slice(-8)
+    .map((state) => {
+      const v = state.visible;
+      return `<tr><td>${state.period}</td><td>${v.federalFundsRate.toFixed(2)}</td><td>${v.coreInflation.toFixed(2)}</td><td>${v.unemployment.toFixed(2)}</td><td>${v.gdpGrowth.toFixed(2)}</td><td>${v.financialConditions.toFixed(2)}</td></tr>`;
+    })
+    .join('');
+}
+
 function hiddenRows(state: SimulationState): string {
   const h = state.hidden;
   const rows: Array<[string, number]> = [
@@ -44,6 +56,7 @@ export function mountDebugPanel(simulation: EconomicSimulation): void {
   if (!root) throw new Error('Missing #debug-panel');
 
   let state = simulation.getState();
+  const history: SimulationState[] = [state];
 
   const render = (): void => {
     root.innerHTML = `
@@ -56,9 +69,11 @@ export function mountDebugPanel(simulation: EconomicSimulation): void {
       <button class="advance" data-advance>ADVANCE ONE PERIOD</button>
       <h2 class="debug-subtitle">Visible release tape</h2>
       <div class="grid">${visibleRows(state)}</div>
+      <h2 class="debug-subtitle">Recent trajectory</h2>
+      <div class="history-wrap"><table class="history-table"><thead><tr><th>P</th><th>Rate</th><th>Core</th><th>U</th><th>GDP</th><th>FCI</th></tr></thead><tbody>${historyRows(history)}</tbody></table></div>
       <h2 class="debug-subtitle">Developer-only hidden state</h2>
       <div class="grid hidden-grid">${hiddenRows(state)}</div>
-      <p class="note">Policy changes enter a five-period lag pipeline. Visible data include seeded measurement noise; the hidden state is exposed here only to validate Phase 1 behavior.</p>
+      <p class="note">One period represents roughly one FOMC intermeeting interval (~${SIMULATION_PERIOD_WEEKS} weeks). Policy changes enter a five-period lag pipeline. Visible data include seeded measurement noise; the hidden state is exposed here only to validate Phase 1 behavior.</p>
     `;
 
     root.querySelectorAll<HTMLButtonElement>('[data-action]').forEach((button) => {
@@ -71,6 +86,7 @@ export function mountDebugPanel(simulation: EconomicSimulation): void {
 
     root.querySelector<HTMLButtonElement>('[data-advance]')?.addEventListener('click', () => {
       state = simulation.advance();
+      history.push(state);
       render();
     });
   };

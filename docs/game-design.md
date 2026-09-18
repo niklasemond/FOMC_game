@@ -13,3 +13,7 @@ No advisers, voting, persuasion, media, political pressure, events, exploration,
 ## Evaluation principle
 
 Before adding content, verify that rate paths produce understandable trade-offs rather than one universally dominant move.
+
+## Phase 1 timing decision
+
+One economic simulation period maps to roughly one FOMC intermeeting interval (~6.5 weeks). This makes the eight-meeting campaign approximately one year long and lets policy effects become visible within a campaign without making them instantaneous. The direct policy pipeline peaks several meetings after a decision.

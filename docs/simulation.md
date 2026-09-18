@@ -37,9 +37,13 @@ The sandbox derives noisy observations for:
 - market stress;
 - credibility.
 
+## Simulation clock
+
+One simulation period represents approximately one scheduled FOMC intermeeting interval, modeled as 6.5 weeks. Eight periods therefore approximate one campaign year. This is a gameplay clock rather than a claim that every real-world FOMC interval is identical.
+
 ## Policy transmission
 
-The policy rate is compared with the hidden neutral rate. The policy gap is filtered through a five-period weighted lag. Current policy therefore matters a little immediately and more over later periods.
+The policy rate is compared with the hidden neutral rate. The policy gap is filtered through a five-period weighted lag `[0.08, 0.17, 0.27, 0.28, 0.20]`. Current policy therefore matters a little immediately and more over later periods; the direct pipeline spans roughly 32.5 weeks, while persistence in demand, labor, expectations, and inflation extends consequences beyond it.
 
 A restrictive effective stance lowers demand and, with additional lag, labor tightness and inflation pressure. It can also increase financial stress when fragility is high.
 
@@ -83,3 +87,15 @@ All major state variables have hard safety bounds. This is a development guardra
 - No data revisions yet.
 - No distinction between monthly and meeting-frequency data.
 - No communication channel beyond credibility state dynamics.
+
+## Iteration 2 trajectory validation
+
+Representative eight-meeting paths were compared for baseline, persistent-inflation, recession, and supply-shock economies. The model currently preserves the desired ordering without requiring a coefficient change:
+
+- tighter paths produce lower demand and inflation than hold/easier paths;
+- tighter paths also produce weaker labor outcomes, preserving a mandate trade-off;
+- easing in recession improves demand and labor conditions but does not erase weakness immediately;
+- a supply shock decays under both hold and hike paths, while hiking trades lower inflation for weaker labor conditions;
+- a one-time 50bp hike has a very small first-period demand effect and a progressively larger separation over subsequent periods.
+
+Because these checks were directionally coherent and stress bounds remained inactive, the core transmission coefficients were left unchanged in this iteration. This avoids tuning the model to a preferred answer before the gameplay layer supplies broader evidence.

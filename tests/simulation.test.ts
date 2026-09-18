@@ -168,3 +168,70 @@ describe('economic simulation', () => {
     }
   });
 });
+
+describe('calibration trajectories', () => {
+  it('transmits a one-time hike gradually rather than mainly on impact', () => {
+    const setup = {
+      seed: 90,
+      federalFundsRate: 3,
+      hidden: {
+        neutralRate: 3,
+        demandPressure: 0.3,
+        underlyingInflationGap: 0.8,
+        laborTightness: 0.3
+      }
+    };
+    const hike = new EconomicSimulation(setup);
+    const hold = new EconomicSimulation(setup);
+    hike.setPolicy(50);
+
+    const demandSeparation: number[] = [];
+    const inflationSeparation: number[] = [];
+    for (let period = 0; period < 5; period += 1) {
+      const hikeState = hike.advance();
+      const holdState = hold.advance();
+      demandSeparation.push(Math.abs(hikeState.hidden.demandPressure - holdState.hidden.demandPressure));
+      inflationSeparation.push(Math.abs(hikeState.hidden.underlyingInflationGap - holdState.hidden.underlyingInflationGap));
+    }
+
+    expect(demandSeparation[0]).toBeLessThan(demandSeparation[3] ?? Infinity);
+    expect(inflationSeparation[0]).toBeLessThan(inflationSeparation[4] ?? Infinity);
+    expect(demandSeparation[0]).toBeLessThan(0.01);
+  });
+
+  it('keeps eight-meeting inflation paths ordered while preserving labor tradeoffs', () => {
+    const setup = {
+      seed: 102,
+      federalFundsRate: 4,
+      hidden: {
+        demandPressure: 0.8,
+        supplyPressure: 0.15,
+        underlyingInflationGap: 1.7,
+        inflationPersistence: 0.78,
+        neutralRate: 3,
+        laborTightness: 0.8
+      }
+    };
+    const hike = new EconomicSimulation(setup);
+    const hold = new EconomicSimulation(setup);
+    const cut = new EconomicSimulation(setup);
+    const hikePath = [25, 25, 25, 25, 0, 0, 0, 0] as const;
+    const holdPath = [0, 0, 0, 0, 0, 0, 0, 0] as const;
+    const cutPath = [-25, -25, -25, -25, 0, 0, 0, 0] as const;
+
+    for (let i = 0; i < 8; i += 1) {
+      hike.setPolicy(hikePath[i] ?? 0);
+      hold.setPolicy(holdPath[i] ?? 0);
+      cut.setPolicy(cutPath[i] ?? 0);
+      hike.advance(); hold.advance(); cut.advance();
+    }
+
+    const h = hike.getState();
+    const m = hold.getState();
+    const c = cut.getState();
+    expect(h.hidden.underlyingInflationGap).toBeLessThan(m.hidden.underlyingInflationGap);
+    expect(m.hidden.underlyingInflationGap).toBeLessThan(c.hidden.underlyingInflationGap);
+    expect(h.hidden.laborTightness).toBeLessThan(m.hidden.laborTightness);
+    expect(m.hidden.laborTightness).toBeLessThan(c.hidden.laborTightness);
+  });
+});

@@ -75,3 +75,55 @@ Reason: `npm install` timed out before dependencies were installed. The code and
 ### Next iteration
 
 Do not begin Phase 2 yet if Phase 1 calibration shows obvious defects. First tune the sandbox from executed scenario output and add a small developer trajectory view/log so consequences are easier to compare across policy paths.
+
+
+## Iteration 2 — Phase 1 Calibration / Trajectory Validation
+
+### Objective
+
+Validate the base economic model across complete eight-meeting paths, make policy lags easier to inspect, and formalize the simulation clock before adding Phase 2 gameplay.
+
+### Changes
+
+- Defined one simulation period as an approximately 6.5-week FOMC intermeeting interval.
+- Moved policy lag weights into explicit exported constants.
+- Added a pure TypeScript policy-path trajectory runner.
+- Added `npm run report:trajectories` with baseline, persistent-inflation, recession, and supply-shock comparisons.
+- Added a recent trajectory table to the debug interface showing rate, core inflation, unemployment, GDP growth, and financial conditions.
+- Added tests for gradual policy transmission and eight-meeting inflation/labor trade-off ordering.
+
+### Tests
+
+Executed successfully:
+
+- existing determinism and save/restore checks;
+- persistent-inflation, supply-shock, recession, fragility, and credibility scenarios;
+- 80-seed × 24-period bounded stress run with zero bound hits;
+- one-time 50bp lag-shape test;
+- eight-meeting hike/hold/cut ordering test;
+- representative trajectory report across four starting regimes and five policy paths.
+
+Package installation was retried with npm and again timed out in the execution environment, so Vitest-through-npm, Phaser browser boot, and Vite production build remain unexecuted here.
+
+### Observed issues
+
+- The default baseline hold path (4.5% policy rate versus 3.0% hidden neutral) is meaningfully restrictive and brings core inflation below 2% by the end of eight periods. This is not internally inconsistent, but it means starting-state construction will matter greatly once campaigns are authored.
+- Front-loaded moves generate somewhat larger end-of-year effects than gradual paths reaching the same terminal rate, as expected from the lag structure. This needs to remain visible but not become a dominant exploit once meetings have richer uncertainty and event risk.
+- Recessionary easing improves outcomes gradually rather than producing an immediate rescue. No obvious mechanical instability was found.
+
+### Decisions
+
+- Keep the existing transmission coefficients unchanged. The current trajectory ordering is coherent, and changing parameters without gameplay evidence would be premature.
+- Treat the simulation period as an intermeeting interval rather than a calendar month.
+- Keep trajectory tooling as developer infrastructure; exact hidden-state effects should not be exposed to normal players.
+
+### Remaining risks
+
+- Calibration remains qualitative rather than fitted to historical impulse responses.
+- The campaign currently lacks endogenous shocks and data revisions, so trajectory comparisons are cleaner than real gameplay will be.
+- Treasury yields still do not incorporate an explicit expected future policy path.
+- Browser runtime validation remains blocked by dependency-install access in this environment.
+
+### Next iteration
+
+The economic foundation is now stable enough to begin Phase 2 narrowly: implement one placeholder FOMC meeting around the existing simulation with a data briefing, two or three advisers, one communication choice, a policy decision, and an explainable market reaction. Do not add the RPG world or full committee system yet.

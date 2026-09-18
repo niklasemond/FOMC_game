@@ -1,4 +1,5 @@
 import { DEFAULT_CONFIG, DEFAULT_HIDDEN_STATE } from './defaults.ts';
+import { POLICY_LAG_WEIGHTS } from './constants.ts';
 import { SeededRng } from './rng.ts';
 import type {
   HiddenEconomyState,
@@ -10,8 +11,6 @@ import type {
 
 const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value));
 const round = (value: number, digits = 2): number => Number(value.toFixed(digits));
-
-const POLICY_WEIGHTS = [0.08, 0.17, 0.27, 0.28, 0.20] as const;
 
 export interface CreateSimulationOptions {
   seed?: number;
@@ -38,7 +37,7 @@ export class EconomicSimulation {
     const hidden = { ...DEFAULT_HIDDEN_STATE, ...options.hidden };
     const federalFundsRate = options.federalFundsRate ?? 4.5;
     this.rng = new SeededRng(seed);
-    const policyHistory = Array.from({ length: POLICY_WEIGHTS.length }, () => federalFundsRate);
+    const policyHistory = Array.from({ length: POLICY_LAG_WEIGHTS.length }, () => federalFundsRate);
     const provisional: SimulationState = {
       version: 1,
       seed,
@@ -140,7 +139,7 @@ export class EconomicSimulation {
     this.state.period += 1;
     this.state.policyHistory = [
       this.state.visible.federalFundsRate,
-      ...this.state.policyHistory.slice(0, POLICY_WEIGHTS.length - 1)
+      ...this.state.policyHistory.slice(0, POLICY_LAG_WEIGHTS.length - 1)
     ];
     this.state.visible = this.observe(true);
     this.state.rngState = this.rng.getState();
@@ -160,7 +159,7 @@ export class EconomicSimulation {
   private effectivePolicyStance(): number {
     const neutralRate = this.state.hidden.neutralRate;
     return this.state.policyHistory.reduce((sum, rate, index) => {
-      const weight = POLICY_WEIGHTS[index] ?? 0;
+      const weight = POLICY_LAG_WEIGHTS[index] ?? 0;
       return sum + weight * (rate - neutralRate);
     }, 0);
   }

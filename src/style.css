@@ -47,6 +47,10 @@ button, input { font: inherit; }
 .advance { width: 100%; }
 .note { font-size: .72rem; line-height: 1.35; opacity: .85; }
 .hidden-grid { background: rgba(23,36,13,.09); padding: 8px; }
+.history-wrap { overflow-x: auto; }
+.history-table { width: 100%; border-collapse: collapse; font-size: .68rem; }
+.history-table th, .history-table td { border-bottom: 1px solid rgba(23,36,13,.35); padding: 3px 4px; text-align: right; }
+.history-table th:first-child, .history-table td:first-child { text-align: left; }
 @media (max-width: 760px) {
   #game-shell { grid-template-columns: 1fr; }
 }
