@@ -576,3 +576,19 @@ This is the first build suitable for a structured local beta round. The primary 
 ### Next gate
 
 Collect local beta observations before adding another mandatory gameplay system. Technical work may continue on beta diagnostics/bug fixes, but the full eight-meeting campaign, political pressure, and RPG world should wait for playtest evidence.
+
+### Iteration 7 validation result
+
+GitHub Actions on the local-beta persistence build completed successfully after one compatibility repair to the Node strip-types smoke path.
+
+Final gate:
+
+- all simulation, meeting, committee, continuity, session, and persistence smoke suites passed;
+- browser persistence refresh/continuation smoke checks passed;
+- 6 Vitest files passed;
+- 36 Vitest tests passed;
+- 80-seed × 24-period macro stress run reported 0 bound hits;
+- strict TypeScript project build passed;
+- Vite production build passed.
+
+The build is therefore ready for the first structured local beta round, subject to the explicit limitation that automated build validation is not a substitute for human browser usability/playability testing.
