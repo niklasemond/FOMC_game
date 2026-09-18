@@ -1,3 +1,34 @@
+# FOMC Chair Strategy Game — Arcade 10-Minute Branch
+
+This branch is a faster redesign of the simulation-heavy prototype.
+
+## Design target
+
+- full eight-meeting run in roughly 8–12 minutes;
+- fewer mandatory opinions and screens;
+- stronger humor and pressure-cooker pacing;
+- fictional presidential pressure and market chaos;
+- same serious macroeconomic engine underneath;
+- one rate decision + one communication decision per meeting;
+- at most one committee voice in the immediate aftermath.
+
+The detailed version is preserved on the `classic-sim` branch.
+
+## Run
+
+```bash
+npm install
+npm run dev
+```
+
+Default: arcade prototype.
+
+Classic detailed flow on this branch: add `?classic=1`.
+
+Developer sandbox: add `?debug=1`.
+
+See `docs/arcade-design.md` for the redesign rules.
+
 # FOMC Chair Strategy Game
 
 Browser-first monetary-policy strategy/RPG prototype built with TypeScript, Phaser, and Vite.

@@ -5,6 +5,7 @@ import { PHASE_2_SCENARIO } from './meeting/content.ts';
 import { EconomicSimulation } from './simulation/engine.ts';
 import { mountDebugPanel } from './ui/debugPanel.ts';
 import { mountMeetingPrototype } from './ui/meetingPanel.ts';
+import { mountArcadePrototype } from './ui/arcadePanel.ts';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -23,9 +24,13 @@ const config: Phaser.Types.Core.GameConfig = {
 
 new Phaser.Game(config);
 
-const debugMode = new URLSearchParams(window.location.search).get('debug') === '1';
+const params = new URLSearchParams(window.location.search);
+const debugMode = params.get('debug') === '1';
+const classicMode = params.get('classic') === '1';
 if (debugMode) {
   mountDebugPanel(new EconomicSimulation(PHASE_2_SCENARIO));
-} else {
+} else if (classicMode) {
   mountMeetingPrototype(new EconomicSimulation(PHASE_2_SCENARIO));
+} else {
+  mountArcadePrototype();
 }
